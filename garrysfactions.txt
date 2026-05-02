@@ -1,0 +1,7 @@
+"garrysfactions"
+{
+	"base"		"sandbox"	
+	"title"		"Garry's Factions"
+	"version"	"1.0.0"
+	"menusystem"	"1"
+}
