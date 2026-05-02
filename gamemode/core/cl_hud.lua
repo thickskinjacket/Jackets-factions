@@ -62,6 +62,35 @@ function draw.JRing(PositionX, PositionY, Radius, Thickness, StartAng, EndAng)
     render.SetStencilEnable(false)
 end
 
+local function GetSegmentFill(segmentIndex, currentHP, maxHP, segments)
+    local hpPerSegment = maxHP / segments
+    local segmentStartHP = (segmentIndex - 1) * hpPerSegment
+    local segmentEndHP = segmentIndex * hpPerSegment
+
+    return math.Clamp((currentHP - segmentStartHP) / hpPerSegment, 0, 1)
+end
+
+local function DrawHealthRing(x, y, radius, thickness, hp, maxHP)
+    local totalSegments = 5
+    local hpMaxAngle = 200
+    local anglePerSegment = hpMaxAngle / totalSegments
+    local gap = 2
+
+    for i = 1, totalSegments do
+        local startAng = (i - 1) * anglePerSegment
+        local endAng = startAng + anglePerSegment - gap
+
+        local segment = GetSegmentFill(i, hp, maxHP, totalSegments)
+
+        if segment > 0 then
+            local fillEndAng = startAng + ((anglePerSegment - gap) * segment)
+
+            surface.SetDrawColor(255, 255, 255, 255)
+            draw.JRing(x, y, radius, thickness, startAng, fillEndAng)
+        end
+    end
+end
+
 local ringConfig = { 
     margin = {
         x = 100, 
@@ -78,7 +107,7 @@ hook.Add("HUDPaint", "garrysfactions_hud", function()
 
     local hp = ply:Health()
     local hpMax = ply:GetMaxHealth()
-    local hpPercent = hp / hpMax 
+    local hpPercent = hp / hpMax
 
     -- Health bar
     local ringX = ScrW() - (ringConfig.margin.x * scale)
@@ -91,6 +120,5 @@ hook.Add("HUDPaint", "garrysfactions_hud", function()
     draw.JRing(ringX, ringY, ringRadius, ringThickness, 0, 200)
 
     -- Health ring
-    surface.SetDrawColor(255, 255, 255, 255)
-    draw.JRing(ringX, ringY, ringRadius, ringThickness, 0, 200 * hpPercent)
+    DrawHealthRing(ringX, ringY, ringRadius, ringThickness, hp, hpMax)
 end)
