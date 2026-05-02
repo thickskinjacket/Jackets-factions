@@ -100,6 +100,8 @@ local ringConfig = {
     thickness = 7 
 }
 
+local plyStartHP, plyOldHP, plyNewHP = 0, -1, -1
+
 hook.Add("HUDPaint", "garrysfactions_hud", function()
     local scale = ScrH() / 1080
 
@@ -109,16 +111,32 @@ hook.Add("HUDPaint", "garrysfactions_hud", function()
     local hpMax = ply:GetMaxHealth()
     local hpPercent = hp / hpMax
 
+    if plyOldHP == -1 and plyNewHP == -1 then
+        plyOldHP = hp
+        plyNewHP = hp
+    end
+
+    if plyNewHP ~= hp then
+        plyOldHP = plyNewHP
+        plyNewHP = hp
+        plyStartHP = CurTime()
+    end
+
     -- Health bar
     local ringX = ScrW() - (ringConfig.margin.x * scale)
     local ringY = ScrH() - (ringConfig.margin.y * scale)
     local ringRadius = ringConfig.radius * scale
     local ringThickness = ringConfig.thickness * scale
 
+    local delay = .25
+    local duration = .15
+    local fraction = math.Clamp((CurTime() - (plyStartHP + delay)) / duration, 0, 1)
+    local lerpedHP = Lerp(fraction, plyOldHP, plyNewHP)
+
     -- Background ring
     surface.SetDrawColor(0, 0, 0, 255 * .75)
     draw.JRing(ringX, ringY, ringRadius, ringThickness, 0, 200)
 
     -- Health ring
-    DrawHealthRing(ringX, ringY, ringRadius, ringThickness, hp, hpMax)
+    DrawHealthRing(ringX, ringY, ringRadius, ringThickness, lerpedHP, hpMax)
 end)
