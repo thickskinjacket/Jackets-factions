@@ -12,37 +12,40 @@ hook.Add("HUDShouldDraw", "HideTheDefaultHUD", function(name)
     end
 end)
 
-function draw.JCircle(PositionX, PositionY, Radius)
-    local circle = {}
-    local i = 0
-    for ang = 0, 360 do
-        i = i + 1
-        circle[i] = {
-            x = PositionX + math.cos(math.rad(ang)) * Radius,
-            y = PositionY + math.sin(math.rad(ang)) * Radius
-        }
+local HP_CIRCLE_CACHE = {}
+local HP_PIE_CACHE = {}
+local BG_CIRCLE_CACHE = {}
+local BG_PIE_CACHE = {}
+
+function draw.JCircle(PositionX, PositionY, Radius, CachedCircle)
+    for i = 1, 361 do
+        local ang = math.rad(i - 1)
+        if not CachedCircle[i] then CachedCircle[i] = { x = 0, y = 0 } end
+        CachedCircle[i].x = PositionX + math.cos(ang) * Radius
+        CachedCircle[i].y = PositionY + math.sin(ang) * Radius
     end
-    return circle
+    return CachedCircle
 end
 
-function draw.JPie(PositionX, PositionY, Radius, StartAng, EndAng)
+function draw.JPie(PositionX, PositionY, Radius, StartAng, EndAng, CachedPie)
     StartAng = StartAng - 115
     EndAng = EndAng - 115
-    local pie = {
-        {x = PositionX, y = PositionY}
-    }
-    local i = 1
+    
+    CachedPie[1] = {x = PositionX, y = PositionY}
+    local i = 2
     for ang = StartAng, EndAng do
+        if not CachedPie[i] then CachedPie[i] = { x = 0, y = 0 } end
+        CachedPie[i].x = PositionX + math.cos(-math.rad(ang)) * Radius
+        CachedPie[i].y = PositionY + math.sin(-math.rad(ang)) * Radius
         i = i + 1
-        pie[i] = {
-            x = PositionX + math.cos(-math.rad(ang)) * Radius,
-            y = PositionY + math.sin(-math.rad(ang)) * Radius
-        }
     end
-    return pie
+
+    for k = i, #CachedPie do CachedPie[k] = nil end
+    
+    return CachedPie
 end
 
-function draw.JRing(PositionX, PositionY, Radius, Thickness, StartAng, EndAng)
+function draw.JRing(PositionX, PositionY, Radius, Thickness, StartAng, EndAng, CachedCircle, CachedPie)
     render.SetStencilWriteMask( 0xFF )
     render.SetStencilTestMask( 0xFF )
     render.SetStencilReferenceValue( 0 )
@@ -56,9 +59,9 @@ function draw.JRing(PositionX, PositionY, Radius, Thickness, StartAng, EndAng)
         render.SetStencilReferenceValue(1)
         render.SetStencilFailOperation(STENCIL_EQUAL)
         render.SetStencilCompareFunction(STENCIL_NEVER)
-        surface.DrawPoly(draw.JCircle(PositionX, PositionY, Radius - Thickness))
+        surface.DrawPoly(draw.JCircle(PositionX, PositionY, Radius - Thickness, CachedCircle))
         render.SetStencilCompareFunction(STENCIL_NOTEQUAL)
-        surface.DrawPoly(draw.JPie(PositionX, PositionY, Radius, StartAng, EndAng))
+        surface.DrawPoly(draw.JPie(PositionX, PositionY, Radius, StartAng, EndAng, CachedPie))
     render.SetStencilEnable(false)
 end
 
@@ -86,7 +89,7 @@ local function DrawHealthRing(x, y, radius, thickness, hp, maxHP)
             local fillEndAng = startAng + ((anglePerSegment - gap) * segment)
 
             surface.SetDrawColor(255, 255, 255, 255)
-            draw.JRing(x, y, radius, thickness, startAng, fillEndAng)
+            draw.JRing(x, y, radius, thickness, startAng, fillEndAng, HP_CIRCLE_CACHE, HP_PIE_CACHE)
         end
     end
 end
@@ -135,7 +138,7 @@ hook.Add("HUDPaint", "garrysfactions_hud", function()
 
     -- Background ring
     surface.SetDrawColor(0, 0, 0, 255 * .75)
-    draw.JRing(ringX, ringY, ringRadius, ringThickness, 0, 200)
+    draw.JRing(ringX, ringY, ringRadius, ringThickness, 0, 200, BG_CIRCLE_CACHE, BG_PIE_CACHE)
 
     -- Health ring
     DrawHealthRing(ringX, ringY, ringRadius, ringThickness, lerpedHP, hpMax)
