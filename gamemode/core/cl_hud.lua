@@ -75,6 +75,47 @@ local function GetSegmentFill(segmentIndex, currentHP, maxHP, segments)
     return math.Clamp((currentHP - segmentStartHP) / hpPerSegment, 0, 1)
 end
 
+local function DrawHUDBackground(x, y, radius, thickness, circleCache, pieCache, scale)
+    local bgBoxW = 200 * scale
+    local bgBoxH = 70 * scale
+
+    render.ClearStencil()
+    render.SetStencilEnable(true)
+    render.SetStencilWriteMask(0xFF)
+    render.SetStencilTestMask(0xFF)
+    render.SetStencilReferenceValue(1)
+    render.SetStencilCompareFunction(STENCIL_ALWAYS)
+    render.SetStencilPassOperation(STENCIL_REPLACE)
+        surface.SetDrawColor(0, 0, 0, 255 * .75)
+        surface.DrawPoly(draw.JCircle(x, y, radius, circleCache))
+    render.SetStencilCompareFunction(STENCIL_NOTEQUAL)
+    render.SetStencilPassOperation(STENCIL_KEEP)
+        surface.SetDrawColor(0, 0, 0, 255 * .75)
+        surface.DrawRect(x - bgBoxW, y - (bgBoxH / 2), bgBoxW, bgBoxH)
+    render.SetStencilEnable(false)
+
+    surface.SetDrawColor(150, 150, 150, 255 * .75)
+    draw.JRing(x, y, radius, thickness, 0, 198, circleCache, pieCache)
+end
+
+local function DrawHealthRing(x, y, radius, thickness, hp, maxHP)
+    local totalSegments = 5
+    local hpMaxAngle = 200
+    local anglePerSegment = hpMaxAngle / totalSegments
+    local gap = 2
+
+    for i = 1, totalSegments do
+        local startAng = (i - 1) * anglePerSegment
+        local segment = GetSegmentFill(i, hp, maxHP, totalSegments)
+
+        if segment > 0 then
+            local fillEndAng = startAng + ((anglePerSegment - gap) * segment)
+            surface.SetDrawColor(255, 255, 255, 255)
+            draw.JRing(x, y, radius, thickness, startAng, fillEndAng, HP_CIRCLE_CACHE, HP_PIE_CACHE)
+        end
+    end
+end
+
 local function DrawHealthRing(x, y, radius, thickness, hp, maxHP)
     local totalSegments = 5
     local hpMaxAngle = 200
@@ -101,7 +142,7 @@ local ringConfig = {
         x = 100, 
         y = 200,
     },
-    radius = 65,
+    radius = 62,
     thickness = 7 
 }
 
@@ -122,8 +163,7 @@ hook.Add("HUDPaint", "garrysfactions_hud", function()
     local ringThickness = ringConfig.thickness * scale
 
     -- Background
-    surface.SetDrawColor(0, 0, 0, 255 * .75)
-    draw.JRing(ringX, ringY, ringRadius, ringThickness, 0, 198, BG_CIRCLE_CACHE, BG_PIE_CACHE)
+    DrawHUDBackground(ringX, ringY, ringRadius, ringThickness, BG_CIRCLE_CACHE, BG_PIE_CACHE, scale)
 
     if plyOldHP == -1 and plyNewHP == -1 then
         plyOldHP = hp
