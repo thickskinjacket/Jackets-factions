@@ -62,5 +62,35 @@ function draw.JRing(PositionX, PositionY, Radius, Thickness, StartAng, EndAng)
     render.SetStencilEnable(false)
 end
 
+local ringConfig = { 
+    margin = {
+        x = 100, 
+        y = 200,
+    },
+    radius = 65,
+    thickness = 7 
+}
+
 hook.Add("HUDPaint", "garrysfactions_hud", function()
+    local scale = ScrH() / 1080
+
+    local ply = LocalPlayer()
+
+    local hp = ply:Health()
+    local hpMax = ply:GetMaxHealth()
+    local hpPercent = hp / hpMax 
+
+    -- Health bar
+    local ringX = ScrW() - (ringConfig.margin.x * scale)
+    local ringY = ScrH() - (ringConfig.margin.y * scale)
+    local ringRadius = ringConfig.radius * scale
+    local ringThickness = ringConfig.thickness * scale
+
+    -- Background ring
+    surface.SetDrawColor(0, 0, 0, 255 * .75)
+    draw.JRing(ringX, ringY, ringRadius, ringThickness, 0, 200)
+
+    -- Health ring
+    surface.SetDrawColor(255, 255, 255, 255)
+    draw.JRing(ringX, ringY, ringRadius, ringThickness, 0, 200 * hpPercent)
 end)
