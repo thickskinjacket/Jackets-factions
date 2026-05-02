@@ -14,6 +14,8 @@ end)
 
 local HP_CIRCLE_CACHE = {}
 local HP_PIE_CACHE = {}
+local GHOST_CIRCLE_CACHE = {}
+local GHOST_PIE_CACHE = {}
 local BG_CIRCLE_CACHE = {}
 local BG_PIE_CACHE = {}
 
@@ -117,12 +119,21 @@ hook.Add("HUDPaint", "garrysfactions_hud", function()
     if plyOldHP == -1 and plyNewHP == -1 then
         plyOldHP = hp
         plyNewHP = hp
+        hpLossGhost = hp
     end
 
-    if plyNewHP ~= hp then
-        plyOldHP = plyNewHP
+    local delay = .25
+    local duration = .15
+    local fraction = math.Clamp((CurTime() - (plyStartHP + delay)) / duration, 0, 1)
+    local hpLossGhost = Lerp(fraction, plyOldHP, plyNewHP)
+
+    if hp < plyNewHP then
+        plyOldHP = hpLossGhost
         plyNewHP = hp
         plyStartHP = CurTime()
+    elseif hp > plyNewHP then 
+        plyOldHP = hp
+        plyNewHP = hp
     end
 
     -- Health bar
@@ -131,15 +142,19 @@ hook.Add("HUDPaint", "garrysfactions_hud", function()
     local ringRadius = ringConfig.radius * scale
     local ringThickness = ringConfig.thickness * scale
 
-    local delay = .25
-    local duration = .15
-    local fraction = math.Clamp((CurTime() - (plyStartHP + delay)) / duration, 0, 1)
-    local lerpedHP = Lerp(fraction, plyOldHP, plyNewHP)
-
     -- Background ring
     surface.SetDrawColor(0, 0, 0, 255 * .75)
-    draw.JRing(ringX, ringY, ringRadius, ringThickness, 0, 200, BG_CIRCLE_CACHE, BG_PIE_CACHE)
+    draw.JRing(ringX, ringY, ringRadius, ringThickness, 0, 198, BG_CIRCLE_CACHE, BG_PIE_CACHE)
+
+    -- Health loss ghost bar
+    if hpLossGhost > hp then
+        local startAng = (hp / hpMax) * 200
+        local endAng = (hpLossGhost / hpMax) * 200
+        
+        surface.SetDrawColor(138, 28, 26, 255)
+        draw.JRing(ringX, ringY, ringRadius, ringThickness, startAng, endAng, GHOST_CIRCLE_CACHE, GHOST_PIE_CACHE)
+    end
 
     -- Health ring
-    DrawHealthRing(ringX, ringY, ringRadius, ringThickness, lerpedHP, hpMax)
+    DrawHealthRing(ringX, ringY, ringRadius, ringThickness, hp, hpMax)
 end)
