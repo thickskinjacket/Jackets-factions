@@ -196,4 +196,4 @@ hook.Add("HUDPaint", "garrysfactions_hud", function()
 
     -- Health ring
     DrawHealthRing(ringX, ringY, ringRadius, ringThickness, hp, hpMax)
-end)
+end, HOOK_HIGH)
