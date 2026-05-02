@@ -116,6 +116,15 @@ hook.Add("HUDPaint", "garrysfactions_hud", function()
     local hpMax = ply:GetMaxHealth()
     local hpPercent = hp / hpMax
 
+    local ringX = ScrW() - (ringConfig.margin.x * scale)
+    local ringY = ScrH() - (ringConfig.margin.y * scale)
+    local ringRadius = ringConfig.radius * scale
+    local ringThickness = ringConfig.thickness * scale
+
+    -- Background
+    surface.SetDrawColor(0, 0, 0, 255 * .75)
+    draw.JRing(ringX, ringY, ringRadius, ringThickness, 0, 198, BG_CIRCLE_CACHE, BG_PIE_CACHE)
+
     if plyOldHP == -1 and plyNewHP == -1 then
         plyOldHP = hp
         plyNewHP = hp
@@ -136,22 +145,12 @@ hook.Add("HUDPaint", "garrysfactions_hud", function()
         plyNewHP = hp
     end
 
-    -- Health bar
-    local ringX = ScrW() - (ringConfig.margin.x * scale)
-    local ringY = ScrH() - (ringConfig.margin.y * scale)
-    local ringRadius = ringConfig.radius * scale
-    local ringThickness = ringConfig.thickness * scale
-
-    -- Background ring
-    surface.SetDrawColor(0, 0, 0, 255 * .75)
-    draw.JRing(ringX, ringY, ringRadius, ringThickness, 0, 198, BG_CIRCLE_CACHE, BG_PIE_CACHE)
-
     -- Health loss ghost bar
     if hpLossGhost > hp then
-        local startAng = (hp / hpMax) * 200
-        local endAng = (hpLossGhost / hpMax) * 200
+        local startAng = math.Clamp((hp / hpMax) * 200, 0, 200)
+        local endAng = math.Clamp((hpLossGhost / hpMax) * 200, 0, 200)
         
-        surface.SetDrawColor(138, 28, 26, 255)
+        surface.SetDrawColor(140, 28, 26, 255)
         draw.JRing(ringX, ringY, ringRadius, ringThickness, startAng, endAng, GHOST_CIRCLE_CACHE, GHOST_PIE_CACHE)
     end
 
