@@ -67,14 +67,6 @@ function draw.JRing(PositionX, PositionY, Radius, Thickness, StartAng, EndAng, C
     render.SetStencilEnable(false)
 end
 
-local function GetSegmentFill(segmentIndex, currentHP, maxHP, segments)
-    local hpPerSegment = maxHP / segments
-    local segmentStartHP = (segmentIndex - 1) * hpPerSegment
-    local segmentEndHP = segmentIndex * hpPerSegment
-
-    return math.Clamp((currentHP - segmentStartHP) / hpPerSegment, 0, 1)
-end
-
 local function DrawHUDBackground(x, y, radius, thickness, circleCache, pieCache, scale)
     local bgBoxW = 200 * scale
     local bgBoxH = 70 * scale
@@ -96,6 +88,14 @@ local function DrawHUDBackground(x, y, radius, thickness, circleCache, pieCache,
 
     surface.SetDrawColor(150, 150, 150, 255 * .75)
     draw.JRing(x, y, radius, thickness, 0, 198, circleCache, pieCache)
+end
+
+local function GetSegmentFill(segmentIndex, currentHP, maxHP, segments)
+    local hpPerSegment = maxHP / segments
+    local segmentStartHP = (segmentIndex - 1) * hpPerSegment
+    local segmentEndHP = segmentIndex * hpPerSegment
+
+    return math.Clamp((currentHP - segmentStartHP) / hpPerSegment, 0, 1)
 end
 
 local function DrawHealthRing(x, y, radius, thickness, hp, maxHP)
@@ -171,7 +171,7 @@ hook.Add("HUDPaint", "garrysfactions_hud", function()
         hpLossGhost = hp
     end
 
-    local delay = .25
+    local delay = .5
     local duration = .15
     local fraction = math.Clamp((CurTime() - (plyStartHP + delay)) / duration, 0, 1)
     local hpLossGhost = Lerp(fraction, plyOldHP, plyNewHP)

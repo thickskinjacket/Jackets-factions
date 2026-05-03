@@ -1,2 +1,2 @@
 include("shared.lua")
-include("core/cl_hud.lua")
+include("cl_hud.lua")
