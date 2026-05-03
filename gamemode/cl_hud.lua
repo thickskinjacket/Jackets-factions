@@ -67,9 +67,12 @@ function draw.JRing(PositionX, PositionY, Radius, Thickness, StartAng, EndAng, C
     render.SetStencilEnable(false)
 end
 
+local bgColor = Color(0, 0, 0, 255 * .75)
+local bgSecondaryColor = Color(140, 140, 140, 255)
+
 local function DrawHUDBackground(x, y, radius, thickness, circleCache, pieCache, scale)
     local bgBoxW = 200 * scale
-    local bgBoxH = 70 * scale
+    local bgBoxH = 60 * scale
 
     render.ClearStencil()
     render.SetStencilEnable(true)
@@ -78,16 +81,45 @@ local function DrawHUDBackground(x, y, radius, thickness, circleCache, pieCache,
     render.SetStencilReferenceValue(1)
     render.SetStencilCompareFunction(STENCIL_ALWAYS)
     render.SetStencilPassOperation(STENCIL_REPLACE)
-        surface.SetDrawColor(0, 0, 0, 255 * .75)
+        surface.SetDrawColor(bgColor)
         surface.DrawPoly(draw.JCircle(x, y, radius, circleCache))
     render.SetStencilCompareFunction(STENCIL_NOTEQUAL)
     render.SetStencilPassOperation(STENCIL_KEEP)
-        surface.SetDrawColor(0, 0, 0, 255 * .75)
+        surface.SetDrawColor(bgColor)
         surface.DrawRect(x - bgBoxW, y - (bgBoxH / 2), bgBoxW, bgBoxH)
     render.SetStencilEnable(false)
 
-    surface.SetDrawColor(150, 150, 150, 255 * .75)
+    surface.SetDrawColor(bgSecondaryColor)
     draw.JRing(x, y, radius, thickness, 0, 198, circleCache, pieCache)
+end
+
+local function DrawAmmoDisplay(x, y, offset, ply, scale)
+    local currentWeapon = ply:GetActiveWeapon()
+    if !currentWeapon:IsValid() then return end
+
+    local clip = currentWeapon:Clip1()
+    local clipMax = currentWeapon:GetMaxClip1()
+    local ammoType = currentWeapon:GetPrimaryAmmoType()
+    local clipReserve = ply:GetAmmoCount(ammoType)
+
+    local clipCountW = 2
+    local clipCountH = 8
+    local clipCountX = x - offset
+    local clipCountY = y + (offset / 2)
+    local clipCountLimit = math.min(30 * scale, clipMax)
+    local gap = 4
+
+    for i = 0, clipCountLimit - 1 do
+        local posX = clipCountX + (i * -gap)
+
+        if i < clip then surface.SetDrawColor(255, 255, 255, 255)
+        else surface.SetDrawColor(bgSecondaryColor) end
+
+        surface.DrawRect(posX, clipCountY, clipCountW, clipCountH)
+    end
+
+    -- draw.SimpleText(clip, "TLOU_Font_Ammo", x, y, color_white, 0, 0)
+    -- draw.SimpleText(clipReserve, "TLOU_Font_Ammo", x, y, color_white, 0, 0)
 end
 
 local function GetSegmentFill(segmentIndex, currentHP, maxHP, segments)
@@ -116,27 +148,6 @@ local function DrawHealthRing(x, y, radius, thickness, hp, maxHP)
     end
 end
 
-local function DrawHealthRing(x, y, radius, thickness, hp, maxHP)
-    local totalSegments = 5
-    local hpMaxAngle = 200
-    local anglePerSegment = hpMaxAngle / totalSegments
-    local gap = 2
-
-    for i = 1, totalSegments do
-        local startAng = (i - 1) * anglePerSegment
-        local endAng = startAng + anglePerSegment - gap
-
-        local segment = GetSegmentFill(i, hp, maxHP, totalSegments)
-
-        if segment > 0 then
-            local fillEndAng = startAng + ((anglePerSegment - gap) * segment)
-
-            surface.SetDrawColor(255, 255, 255, 255)
-            draw.JRing(x, y, radius, thickness, startAng, fillEndAng, HP_CIRCLE_CACHE, HP_PIE_CACHE)
-        end
-    end
-end
-
 local ringConfig = { 
     margin = {
         x = 100, 
@@ -152,6 +163,7 @@ hook.Add("HUDPaint", "garrysfactions_hud", function()
     local scale = ScrH() / 1080
 
     local ply = LocalPlayer()
+    if !ply:Alive() or !ply:IsValid() then return end
 
     local hp = ply:Health()
     local hpMax = ply:GetMaxHealth()
@@ -164,6 +176,9 @@ hook.Add("HUDPaint", "garrysfactions_hud", function()
 
     -- Background
     DrawHUDBackground(ringX, ringY, ringRadius, ringThickness, BG_CIRCLE_CACHE, BG_PIE_CACHE, scale)
+
+    -- Ammo
+    DrawAmmoDisplay(ringX, ringY, ringRadius, ply, scale)
 
     if plyOldHP == -1 and plyNewHP == -1 then
         plyOldHP = hp
