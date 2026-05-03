@@ -114,6 +114,20 @@ local function DrawAmmoDisplay(x, y, offset, ply, scale)
     local ammoType = currentWeapon:GetPrimaryAmmoType()
     local clipReserve = ply:GetAmmoCount(ammoType)
 
+    if clipMax <= 0 and ammoType == -1 then return end
+
+    surface.SetFont("TLOU_Font_Ammo_Small")
+    local ammoCountDisplayText = clip
+    local countW, countH = surface.GetTextSize(ammoCountDisplayText)
+    local ammoX = x + countW + (offset / 4)
+    local ammoY = y + countH
+
+    if clip == -1 and ammoType != nil then
+        draw.SimpleText(clipReserve, "TLOU_Font_Ammo_Big", ammoX - (offset / 4) - (countW / 2), ammoY, color_white, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
+        
+        return
+    end
+
     local clipCountW = 2
     local clipCountH = 8
     local clipCountX = x - offset
@@ -130,14 +144,8 @@ local function DrawAmmoDisplay(x, y, offset, ply, scale)
         surface.DrawRect(posX, clipCountY, clipCountW, clipCountH)
     end
 
-    surface.SetFont("TLOU_Font_Ammo_Small")
-    local ammoCountDisplayText = clip
     local ammoCountReserveDisplayText = " | " .. clipReserve
-    local countW, countH = surface.GetTextSize(ammoCountDisplayText)
     local countReserveW, countReserveH = surface.GetTextSize(ammoCountReserveDisplayText)
-
-    local ammoX = x + countW + (offset / 4)
-    local ammoY = y + countH
 
     draw.SimpleText(ammoCountDisplayText, "TLOU_Font_Ammo_Big", ammoX - countReserveW, ammoY, color_white, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
     draw.SimpleText(ammoCountReserveDisplayText, "TLOU_Font_Ammo_Small", ammoX, ammoY, Color(180, 180, 180, 255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
