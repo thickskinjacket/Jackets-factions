@@ -1,3 +1,15 @@
+surface.CreateFont("TLOU_Font_Ammo_Small", {
+    font = "Roboto",
+    size = 26,
+    weight = 500,
+})
+
+surface.CreateFont("TLOU_Font_Ammo_Big", {
+    font = "Roboto", 
+    size = 36,
+    weight = 500,
+} )
+
 local hide = {
     ["CHudHealth"] = true,
     ["CHudBattery"] = true,
@@ -118,8 +130,17 @@ local function DrawAmmoDisplay(x, y, offset, ply, scale)
         surface.DrawRect(posX, clipCountY, clipCountW, clipCountH)
     end
 
-    -- draw.SimpleText(clip, "TLOU_Font_Ammo", x, y, color_white, 0, 0)
-    -- draw.SimpleText(clipReserve, "TLOU_Font_Ammo", x, y, color_white, 0, 0)
+    surface.SetFont("TLOU_Font_Ammo_Small")
+    local ammoCountDisplayText = clip
+    local ammoCountReserveDisplayText = " | " .. clipReserve
+    local countW, countH = surface.GetTextSize(ammoCountDisplayText)
+    local countReserveW, countReserveH = surface.GetTextSize(ammoCountReserveDisplayText)
+
+    local ammoX = x + countW + (offset / 4)
+    local ammoY = y + countH
+
+    draw.SimpleText(ammoCountDisplayText, "TLOU_Font_Ammo_Big", ammoX - countReserveW, ammoY, color_white, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
+    draw.SimpleText(ammoCountReserveDisplayText, "TLOU_Font_Ammo_Small", ammoX, ammoY, Color(180, 180, 180, 255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
 end
 
 local function GetSegmentFill(segmentIndex, currentHP, maxHP, segments)
@@ -153,7 +174,7 @@ local ringConfig = {
         x = 100, 
         y = 200,
     },
-    radius = 62,
+    radius = 64,
     thickness = 7 
 }
 
