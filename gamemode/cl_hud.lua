@@ -29,16 +29,18 @@ function draw.JCircle(PositionX, PositionY, Radius, CachedCircle)
     return CachedCircle
 end
 
-function draw.JPie(PositionX, PositionY, Radius, StartAng, EndAng, CachedPie)
-    StartAng = StartAng - 115
-    EndAng = EndAng - 115
+function draw.JPie(PositionX, PositionY, Radius, StartAng, EndAng, CachedPie, AngleOffset)
+    AngleOffset = AngleOffset or 115
+    StartAng = StartAng - AngleOffset
+    EndAng = EndAng - AngleOffset
     
     CachedPie[1] = {x = PositionX, y = PositionY}
     local i = 2
-    for ang = StartAng, EndAng do
+    local step = StartAng <= EndAng and 1 or -1
+    for ang = StartAng, EndAng, step do
         if not CachedPie[i] then CachedPie[i] = { x = 0, y = 0 } end
-        CachedPie[i].x = PositionX + math.cos(-math.rad(ang)) * Radius
-        CachedPie[i].y = PositionY + math.sin(-math.rad(ang)) * Radius
+        CachedPie[i].x = PositionX + math.cos(math.rad(ang)) * Radius
+        CachedPie[i].y = PositionY + math.sin(math.rad(ang)) * Radius
         i = i + 1
     end
 
@@ -47,7 +49,7 @@ function draw.JPie(PositionX, PositionY, Radius, StartAng, EndAng, CachedPie)
     return CachedPie
 end
 
-function draw.JRing(PositionX, PositionY, Radius, Thickness, StartAng, EndAng, CachedCircle, CachedPie)
+function draw.JRing(PositionX, PositionY, Radius, Thickness, StartAng, EndAng, CachedCircle, CachedPie, AngleOffset)
     render.SetStencilWriteMask( 0xFF )
     render.SetStencilTestMask( 0xFF )
     render.SetStencilReferenceValue( 0 )
@@ -63,7 +65,7 @@ function draw.JRing(PositionX, PositionY, Radius, Thickness, StartAng, EndAng, C
         render.SetStencilCompareFunction(STENCIL_NEVER)
         surface.DrawPoly(draw.JCircle(PositionX, PositionY, Radius - Thickness, CachedCircle))
         render.SetStencilCompareFunction(STENCIL_NOTEQUAL)
-        surface.DrawPoly(draw.JPie(PositionX, PositionY, Radius, StartAng, EndAng, CachedPie))
+        surface.DrawPoly(draw.JPie(PositionX, PositionY, Radius, StartAng, EndAng, CachedPie, AngleOffset))
     render.SetStencilEnable(false)
 end
 
@@ -90,7 +92,7 @@ local function DrawHUDBackground(x, y, radius, thickness, circleCache, pieCache,
     render.SetStencilEnable(false)
 
     surface.SetDrawColor(bgSecondaryColor)
-    draw.JRing(x, y, radius, thickness, 0, 198, circleCache, pieCache)
+    draw.JRing(x, y, radius, thickness, 0, -198, circleCache, pieCache, -115)
 end
 
 local function DrawAmmoDisplay(x, y, offset, ply, scale)
@@ -160,7 +162,7 @@ local function DrawHealthRing(x, y, radius, thickness, hp, maxHP)
         if segment > 0 then
             local fillEndAng = startAng + ((anglePerSegment - gap) * segment)
             surface.SetDrawColor(255, 255, 255, 255)
-            draw.JRing(x, y, radius, thickness, startAng, fillEndAng, HP_CIRCLE_CACHE, HP_PIE_CACHE)
+            draw.JRing(x, y, radius, thickness, -startAng, -fillEndAng, HP_CIRCLE_CACHE, HP_PIE_CACHE, -115)
         end
     end
 end
@@ -223,7 +225,7 @@ hook.Add("HUDPaint", "jacketsfactions_hud", function()
         local endAng = math.Clamp((hpLossGhost / hpMax) * 200, 0, 200)
         
         surface.SetDrawColor(140, 28, 26, 255)
-        draw.JRing(ringX, ringY, ringRadius, ringThickness, startAng, endAng, GHOST_CIRCLE_CACHE, GHOST_PIE_CACHE)
+        draw.JRing(ringX, ringY, ringRadius, ringThickness, -startAng, -endAng, GHOST_CIRCLE_CACHE, GHOST_PIE_CACHE, -115)
     end
 
     -- Health ring

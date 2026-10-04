@@ -1,87 +1,3 @@
-function draw.JCircle(PositionX, PositionY, Radius, jCache)
-    local circle = {}
-    local i = 0
-    for ang = 0, 360, (360/45) do
-        i = i + 1
-        circle[i] = {
-            x = PositionX + math.cos(math.rad(ang)) * Radius,
-            y = PositionY + math.sin(math.rad(ang)) * Radius
-        }
-    end
-    if jCache then
-        return circle
-    end
-
-    surface.DrawPoly(circle)
-end
-
-function draw.JPie(PositionX, PositionY, Radius, StartAng, EndAng, jCache)
-
-    StartAng = StartAng - 90
-    EndAng = EndAng - 90
-    local pie = {
-        {x = PositionX, y = PositionY}
-    }
-    local i = 1
-    for ang = StartAng, EndAng, (360/180) do
-        i = i + 1
-        pie[i] = {
-            x = PositionX + math.cos(math.rad(ang)) * Radius,
-            y = PositionY + math.sin(math.rad(ang)) * Radius
-        }
-    end
-
-    if jCache then
-        return pie
-    end
-
-    surface.DrawPoly(pie)
-end
-
-function draw.JRing(PositionX, PositionY, Radius, Thickness, StartAng, EndAng, jCachedCircle)
-    local jCircle
-    local jRing
-
-    if istable(PositionX) and istable(PositionY) then
-        if not jCircle then
-            jCircle = PositionX
-        end
-        if not jRing then
-            jRing = PositionY
-        end
-    end
-
-    if not jCircle then
-        if jCachedCircle then
-            jCircle = jCachedCircle
-        else
-            jCircle = draw.JCircle(PositionX, PositionY, Radius - Thickness, true)
-        end
-    end
-
-    render.SetStencilWriteMask( 0xFF )
-    render.SetStencilTestMask( 0xFF )
-    render.SetStencilReferenceValue( 0 )
-    render.SetStencilCompareFunction( STENCIL_ALWAYS )
-    render.SetStencilPassOperation( STENCIL_KEEP )
-    render.SetStencilFailOperation( STENCIL_KEEP )
-    render.SetStencilZFailOperation( STENCIL_KEEP )
-    render.ClearStencil()
-
-    render.SetStencilEnable(true)
-        render.SetStencilReferenceValue(1)
-        render.SetStencilFailOperation(STENCIL_EQUAL)
-        render.SetStencilCompareFunction(STENCIL_NEVER)
-        surface.DrawPoly(jCircle)
-        render.SetStencilCompareFunction(STENCIL_NOTEQUAL)
-        if jRing then
-            surface.DrawPoly(jRing)
-        else
-            draw.JPie(PositionX, PositionY, Radius, StartAng, EndAng)
-        end
-    render.SetStencilEnable(false)
-end
-
 local chasePos
 
 hook.Add("CalcView", "downed_state_view", function(ply, pos, ang, fov)
@@ -139,6 +55,10 @@ local health_icon = Material("homigrad_style_downs/small-health.png")
 
 local circle60
 local circle75
+local pie60 = {}
+local pie75 = {}
+local hudCircle = {}
+local hudPie = {}
 
 hook.Add("HUDPaintBackground", "downed_bleed_out_hud", function()
     local ply = LocalPlayer()
@@ -193,7 +113,7 @@ hook.Add("HUDPaintBackground", "downed_bleed_out_hud", function()
     draw.SimpleText(downedMessage, "textFont", boxX + (textW / 2) + 5, boxY + (boxH / 2), Color(255, 255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
     // Timer ring
     surface.SetDrawColor(ringColor)
-    draw.JRing(boxX + boxW - (ringRadius) - 5, boxY + (boxH / 2), ringRadius, ringThickSkinJacket, 0, 360 * ringFraction)
+    draw.JRing(boxX + boxW - (ringRadius) - 5, boxY + (boxH / 2), ringRadius, ringThickSkinJacket, 0, 360 * ringFraction, hudCircle, hudPie, 90)
 end)
 
 hook.Add("PostDrawOpaqueRenderables", "draw_downed_players_icons", function()
@@ -205,10 +125,10 @@ hook.Add("PostDrawOpaqueRenderables", "draw_downed_players_icons", function()
     local eyepos = EyePos()
 
     if not circle60 then
-        circle60 = draw.JCircle(0, 0, 50, true)
+        circle60 = {}
     end
     if not circle75 then
-        circle75 = draw.JCircle(0, 0, 65, true)
+        circle75 = {}
     end
 
     for ply, rag in pairs(downedPlayers) do
@@ -245,13 +165,13 @@ hook.Add("PostDrawOpaqueRenderables", "draw_downed_players_icons", function()
 
             if LocalPlayer() == rag:GetNWEntity("savior") then
                 surface.SetDrawColor(11, 16, 183, 255)
-                draw.JRing(0, 0, 75, 10, 0, 360 * fractionRevive, circle75)
+                draw.JRing(0, 0, 75, 10, 0, 360 * fractionRevive, circle75, pie75, 90)
             end
 
             surface.SetDrawColor(57, 59, 61, 255)
-            draw.JRing(0, 0, 60, 10, 0, 360, circle60)
+            draw.JRing(0, 0, 60, 10, 0, 360, circle60, pie60, 90)
             surface.SetDrawColor(167, 15, 16, 255)
-            draw.JRing(0, 0, 60, 10, 0, 360 * fractionBleedOut, circle60)
+            draw.JRing(0, 0, 60, 10, 0, 360 * fractionBleedOut, circle60, pie60, 90)
 
             surface.SetDrawColor(123, 183, 232, 255)
             surface.SetMaterial(health_icon) 
