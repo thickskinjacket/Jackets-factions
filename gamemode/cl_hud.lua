@@ -243,6 +243,13 @@ hook.Add("PreDrawHalos", "jacketsfactions_teammate_halos", function()
     
     for _, otherPly in player.Iterator() do
         if IsValid(otherPly) and otherPly:Alive() and otherPly ~= ply and otherPly:Team() == plyTeam then
+            if otherPly:GetNWBool("downed") then
+                table.RemoveByValue(teammates, otherPly)
+                local ragdoll = otherPly:GetNWEntity("downed_ragdoll")
+                
+                table.insert(teammates, ragdoll)
+                continue
+            end
             table.insert(teammates, otherPly)
         end
     end
