@@ -133,6 +133,7 @@ hook.Add("PostDrawOpaqueRenderables", "draw_downed_players_icons", function()
 
     for ply, rag in pairs(downedPlayers) do
         if not IsValid(rag) or not IsValid(ply) or not ply:Alive() then continue end
+        if ply:Team() ~= lp:Team() then continue end
         if ply == LocalPlayer() then continue end
 
         local pos = rag:GetPos()

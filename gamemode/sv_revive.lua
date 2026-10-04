@@ -213,6 +213,7 @@ hook.Add("PlayerUse", "HSR_pu", function(user, ent)
 
 	if IsValid(rag:GetNWEntity("savior")) then return end
 	if user == plyDowned then return end
+	if user:Team() != plyDowned:Team() then return end
 	rag:SetNWEntity("savior", user)
 	rag:SetNWFloat("reviveStartTime", CurTime())
 end)
