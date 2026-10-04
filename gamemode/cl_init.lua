@@ -1,5 +1,7 @@
 include("shared.lua")
 include("cl_hud.lua")
+include("sh_revive.lua")
+include("cl_revive.lua")
 
 CreateConVar("jf_spectator", "0", FCVAR_ARCHIVE)
 
