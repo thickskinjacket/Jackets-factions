@@ -51,7 +51,7 @@ end)
 local downedPlayers = {}
 
 local matWhite = Material("vgui/white")
-local health_icon = Material("homigrad_style_downs/small-health.png")
+local health_icon = Material("hud/small-health.png")
 
 local circle60
 local circle75
@@ -178,7 +178,7 @@ hook.Add("PostDrawOpaqueRenderables", "draw_downed_players_icons", function()
             surface.SetMaterial(health_icon) 
             surface.DrawTexturedRect(-32, -32, 64, 64)
 
-            draw.SimpleTextOutlined(ply:Nick(), "plyNickFont", 0, -110, team.GetColor(LocalPlayer():Team()), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 3, Color(0, 0, 0, 255))
+            draw.SimpleTextOutlined(ply:Nick(), "plyNickFont", 0, -110, team.GetColor(LocalPlayer():Team()), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 1, Color(0, 0, 0, 220))
         cam.End3D2D()
         cam.IgnoreZ(false)
     end

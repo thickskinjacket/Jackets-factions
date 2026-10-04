@@ -1,4 +1,4 @@
-function createFonts()
+function createFonts(scale)
     print("Creating fonts...")
     
     surface.CreateFont("plyNickFont", {

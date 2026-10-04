@@ -294,8 +294,8 @@ hook.Add("HUDPaint", "jacketsfactions_teammate_names", function()
             nameColor,
             TEXT_ALIGN_CENTER,
             TEXT_ALIGN_CENTER,
-            2,
-            Color(0, 0, 0, 255)
+            1,
+            Color(0, 0, 0, 220)
         )
     end
 end)

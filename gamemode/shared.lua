@@ -14,8 +14,8 @@ TEAM_FIREFLIES = 1
 TEAM_HUNTERS = 2
 
 function GM:CreateTeams()
-	team.SetUp(TEAM_FIREFLIES, "Fireflies", Color(255, 0, 0), true)
-	team.SetUp(TEAM_HUNTERS, "Hunters", Color(0, 0, 255), true)
+	team.SetUp(TEAM_FIREFLIES, "Fireflies", Color(244, 203, 63), true)
+	team.SetUp(TEAM_HUNTERS, "Hunters", Color(64, 169, 233), true)
 
 	team.SetSpawnPoint(TEAM_FIREFLIES, "info_player_deathmatch")
    	team.SetSpawnPoint(TEAM_HUNTERS, "info_player_deathmatch")
