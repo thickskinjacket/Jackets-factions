@@ -1,20 +1,16 @@
 HSR = {}
 HSR.downedPlayers = {}
 
-CreateConVar("hsr_enable", "1", { FCVAR_REPLICATED, FCVAR_ARCHIVE }, "Enable addon?")
-CreateConVar("hsr_ragdoll_invulnerable", "0", { FCVAR_REPLICATED, FCVAR_ARCHIVE }, "Can you get damaged when downed")
-CreateConVar("hsr_ragdoll_bleed_out_time", "30", { FCVAR_REPLICATED, FCVAR_ARCHIVE }, "How long the ragdoll will bleed out for")
-CreateConVar("hsr_ragdoll_give_up_time", "1", { FCVAR_REPLICATED, FCVAR_ARCHIVE }, "How long it takes to give up")
-CreateConVar("hsr_ragdoll_revive_time", "4", { FCVAR_REPLICATED, FCVAR_ARCHIVE }, "How long it takes to revive someone")
-CreateConVar("hsr_max_downs", "3", { FCVAR_REPLICATED, FCVAR_ARCHIVE }, "Maximum times a player can be downed before permanent death (0 = unlimited)")
-CreateConVar("hsr_indicator_max_distance", "4000", { FCVAR_REPLICATED, FCVAR_ARCHIVE }, "From how far away can downed indicators be seen")
-CreateConVar("hsr_npc_revive_allowed", "1", { FCVAR_REPLICATED, FCVAR_ARCHIVE }, "Are NPCs allowed to revive you")
-CreateConVar("hsr_ragdoll_npc_search_radius", "500", { FCVAR_REPLICATED, FCVAR_ARCHIVE }, "Maximum distance for NPCs to come to you")
-CreateConVar("hsr_ragdoll_npc_revive_radius", "60", { FCVAR_REPLICATED, FCVAR_ARCHIVE }, "At what distance do the NPCs actually start reviving you")
-CreateConVar("hsr_ragdoll_drag_allowed", "1", { FCVAR_REPLICATED, FCVAR_ARCHIVE }, "Can players drag downed players")
-CreateConVar("hsr_ragdoll_drag_force", "5", { FCVAR_REPLICATED, FCVAR_ARCHIVE }, "With how much force the ragdoll is dragged")
-CreateConVar("hsr_remove_ragdoll_on_death", "1", { FCVAR_REPLICATED, FCVAR_ARCHIVE }, "Should ragdolls be removed on death?")
-CreateConVar("hsr_revive_whitelist_teams", "", { FCVAR_REPLICATED, FCVAR_ARCHIVE }, "Teams that are whitelisted to reviving (names separated by a single space)")
+local function createReviveConVar(name, default, description)
+    if SERVER then
+        return CreateConVar(name, default, { FCVAR_REPLICATED, FCVAR_ARCHIVE }, description)
+    end
+
+    return CreateClientConVar(name, default, true, false, description)
+end
+
+createReviveConVar("jf_bleedout_time", "30", "How long the ragdoll will bleed out for")
+createReviveConVar("jf_revive_time", "4", "How long it takes to revive someone")
 
 HSR.boneToHitGroup = { 
     ["ValveBiped.Bip01_Head1"] = 1,

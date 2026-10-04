@@ -146,14 +146,12 @@ hook.Add("HUDPaintBackground", "downed_bleed_out_hud", function()
 
 	if not ply:GetNWBool("downed") or not IsValid(ply) or not IsValid(rag) or not ply:Alive() then return end
 
-    local bleed_out_time = GetConVar("hsr_ragdoll_bleed_out_time"):GetInt()
-    local revive_time = GetConVar("hsr_ragdoll_revive_time"):GetInt()
-    local give_up_time = GetConVar("hsr_ragdoll_give_up_time"):GetInt()
+    local bleed_out_time = GetConVar("jf_bleedout_time"):GetInt()
+    local revive_time = GetConVar("jf_revive_time"):GetInt()
 
     local scale = ScrW() / 1600
     local savior = rag:GetNWEntity("savior")
     local isBeingRevived = IsValid(savior)
-    local isGivingUp = ply:KeyDown(IN_JUMP)
 
     // Math
     -- Bleed out
@@ -166,14 +164,9 @@ hook.Add("HUDPaintBackground", "downed_bleed_out_hud", function()
     local elapsedRevive = CurTime() - startReviveTime
     local fractionRevive = math.Clamp(elapsedRevive / revive_time, 0, 1)
 
-    --Give up
-    local startGiveUpTime = rag:GetNWFloat("giveUpStartTime", CurTime())
-    local elapsedGiveUp = CurTime() - startGiveUpTime
-    local fractionGiveUp = math.Clamp(elapsedGiveUp / give_up_time, 0, 1)
-
     // Text properties
     surface.SetFont("textFont")
-    local downedMessage = isGivingUp and "Giving up" or (isBeingRevived and "You are being helped up" or "You are bleeding out")
+    local downedMessage = isBeingRevived and "You are being helped up" or "You are bleeding out"
     local textW, textH = surface.GetTextSize(downedMessage)
 
     // Ring properties
@@ -184,8 +177,8 @@ hook.Add("HUDPaintBackground", "downed_bleed_out_hud", function()
     local b = minGB + (255 - minGB) * pulse
     local ringRadius = 20 * scale
     local ringThickSkinJacket = 5 * scale
-    local ringColor = isGivingUp and Color(255, g, b, 255) or (isBeingRevived and Color(123, 183, 232, 255) or Color(255, g, b, 255))
-    local ringFraction = (isGivingUp and fractionGiveUp) or (isBeingRevived and fractionRevive) or fractionBleedOut
+    local ringColor = isBeingRevived and Color(123, 183, 232, 255) or Color(255, g, b, 255)
+    local ringFraction = isBeingRevived and fractionRevive or fractionBleedOut
 
     // Background box properties
     local boxW, boxH = textW + (10 + (ringRadius * 2 + 10) * scale), 50 * scale
@@ -198,8 +191,6 @@ hook.Add("HUDPaintBackground", "downed_bleed_out_hud", function()
     // Text 
     surface.SetDrawColor(255, 255, 255, 255)
     draw.SimpleText(downedMessage, "textFont", boxX + (textW / 2) + 5, boxY + (boxH / 2), Color(255, 255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
-    draw.SimpleTextOutlined("Hold 'Space' to give up", "textSmallFont", boxX + (boxW / 2), boxY - (boxH / 2) + (85 * scale), Color(255, 255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 1, Color(0, 0, 0, 255))
-
     // Timer ring
     surface.SetDrawColor(ringColor)
     draw.JRing(boxX + boxW - (ringRadius) - 5, boxY + (boxH / 2), ringRadius, ringThickSkinJacket, 0, 360 * ringFraction)
@@ -208,30 +199,10 @@ end)
 hook.Add("PostDrawOpaqueRenderables", "draw_downed_players_icons", function()
     if table.IsEmpty(downedPlayers) then return end
 
-    local whitelist = GetConVar("hsr_revive_whitelist_teams"):GetString()
-    if whitelist != "" then
-        local userTeamID = LocalPlayer():Team()
-        local allowedTeams = string.Explode(" ", whitelist)
-        local isAllowed = false
-
-        for _, idStr in ipairs(allowedTeams) do
-            if tonumber(idStr) == userTeamID then
-                isAllowed = true
-                break
-            end
-        end
-
-        if not isAllowed then return end
-    end
-
-    local bleed_out_time = GetConVar("hsr_ragdoll_bleed_out_time"):GetInt()
-    local revive_time = GetConVar("hsr_ragdoll_revive_time"):GetInt()
-    local maxIndicatorDistance = GetConVar("hsr_indicator_max_distance"):GetInt()
-
+    local bleed_out_time = GetConVar("jf_bleedout_time"):GetInt()
+    local revive_time = GetConVar("jf_revive_time"):GetInt()
     local lp = LocalPlayer()
     local eyepos = EyePos()
-    local maxDist = maxIndicatorDistance
-    local maxDistSqr = maxDist * maxDist
 
     if not circle60 then
         circle60 = draw.JCircle(0, 0, 50, true)
@@ -243,7 +214,6 @@ hook.Add("PostDrawOpaqueRenderables", "draw_downed_players_icons", function()
     for ply, rag in pairs(downedPlayers) do
         if not IsValid(rag) or not IsValid(ply) or not ply:Alive() then continue end
         if ply == LocalPlayer() then continue end
-        if eyepos:DistToSqr(rag:GetPos()) > maxDistSqr then continue end
 
         local pos = rag:GetPos()
         pos.z = pos.z + 20
