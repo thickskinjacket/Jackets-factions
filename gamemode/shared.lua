@@ -3,6 +3,8 @@ GM.Author = "thickskinjacket"
 
 DeriveGamemode("sandbox")
 
+include("sh_revive.lua")
+
 ROUND_WAITING = 0
 ROUND_STARTING = 1
 ROUND_ACTIVE = 2

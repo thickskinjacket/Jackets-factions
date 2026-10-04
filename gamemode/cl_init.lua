@@ -1,5 +1,4 @@
 include("shared.lua")
-include("sh_revive.lua")
 include("cl_hud.lua")
 include("cl_revive.lua")
 

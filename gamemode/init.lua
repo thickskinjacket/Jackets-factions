@@ -4,7 +4,6 @@ include("player_ext.lua")
 include("player_ext_shared.lua")
 include("sv_workshop.lua")
 include("sv_revive.lua")
-include("sh_revive.lua")
 
 AddCSLuaFile("shared.lua")
 AddCSLuaFile("cl_init.lua")
