@@ -20,15 +20,20 @@ function GM:PlayerDeath(ply, attacker, dmginfo)
     local roundState = GetRoundState()
 
     if roundState == ROUND_ACTIVE then
-        local aliveCount = 0
+        local firefliesAlive = false
+        local huntersAlive = false
 
         for _, p in player.Iterator() do
             if IsValid(p) and p:Alive() then
-                aliveCount = aliveCount + 1
+                if p:Team() == TEAM_FIREFLIES then
+                    firefliesAlive = true
+                elseif p:Team() == TEAM_HUNTERS then
+                    huntersAlive = true
+                end
             end
         end
 
-        if aliveCount <= 1 then
+        if not firefliesAlive or not huntersAlive then
             EndRound()
         end
     end
