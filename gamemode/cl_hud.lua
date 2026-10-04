@@ -1,14 +1,17 @@
-surface.CreateFont("TLOU_Font_Ammo_Small", {
-    font = "Roboto",
-    size = 26,
-    weight = 500,
-})
+function createFonts(scale)
+    surface.CreateFont("TLOU_Font_Ammo_Small", {
+        font = "Roboto",
+        size = 26 * scale,
+        weight = 500,
+    })
 
-surface.CreateFont("TLOU_Font_Ammo_Big", {
-    font = "Roboto", 
-    size = 36,
-    weight = 500,
-} )
+    surface.CreateFont("TLOU_Font_Ammo_Big", {
+        font = "Roboto", 
+        size = 36 * scale,
+        weight = 500,
+    })
+end
+createFonts(ScrH() / 1080)
 
 local hide = {
     ["CHudHealth"] = true,
@@ -22,6 +25,12 @@ hook.Add("HUDShouldDraw", "HideTheDefaultHUD", function(name)
     if (hide[name]) then
         return false
     end
+end)
+
+hook.Add("OnScreenSizeChanged", "RescaleHUDFonts", function()
+    local scale = ScrH() / 1080
+
+    createFonts(scale)
 end)
 
 local HP_CIRCLE_CACHE = {}
