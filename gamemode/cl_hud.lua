@@ -260,3 +260,42 @@ hook.Add("PreDrawHalos", "jacketsfactions_teammate_halos", function()
         halo.Add(teammates, haloColor, 2, 2, 2, true, true)
     end
 end)
+
+hook.Add("HUDPaint", "jacketsfactions_teammate_names", function()
+    local ply = LocalPlayer()
+    if not IsValid(ply) then return end
+
+    local plyTeam = ply:Team()
+    local nameColor = team.GetColor(plyTeam) or color_white
+
+    for _, otherPly in player.Iterator() do
+        if not IsValid(otherPly) or otherPly == ply or not otherPly:Alive() or otherPly:Team() ~= plyTeam then
+            continue
+        end
+        if otherPly:GetNWBool("downed") then continue end
+
+        local target = otherPly
+        if otherPly:GetNWBool("downed") then
+            target = otherPly:GetNWEntity("downed_ragdoll")
+        end
+
+        if not IsValid(target) then continue end
+
+        local position = target:GetPos() + Vector(0, 0, target:OBBMaxs().z + 6)
+        local screenPosition = position:ToScreen()
+
+        if not screenPosition.visible then continue end
+
+        draw.SimpleTextOutlined(
+            otherPly:Nick(),
+            "jf_teammate_name",
+            screenPosition.x,
+            screenPosition.y,
+            nameColor,
+            TEXT_ALIGN_CENTER,
+            TEXT_ALIGN_CENTER,
+            2,
+            Color(0, 0, 0, 255)
+        )
+    end
+end)
