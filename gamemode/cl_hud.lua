@@ -192,7 +192,7 @@ hook.Add("HUDPaint", "garrysfactions_hud", function()
     local scale = ScrH() / 1080
 
     local ply = LocalPlayer()
-    if !ply:Alive() or !ply:IsValid() then return end
+    if not IsValid(ply) or not ply:Alive() then return end
 
     local hp = ply:Health()
     local hpMax = ply:GetMaxHealth()
