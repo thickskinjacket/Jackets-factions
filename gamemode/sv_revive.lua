@@ -1,6 +1,23 @@
 util.AddNetworkString("downedPlayerLocation")
 util.AddNetworkString("changeConVarValue")
 
+function GM:DoPlayerDeath(ply, attacker, dmgInfo)
+	if not dmgInfo:IsDamageType(DMG_REMOVENORAGDOLL)
+		and not IsValid(ply:GetNWEntity("downed_ragdoll")) then
+		ply:CreateRagdoll()
+	end
+
+	ply:AddDeaths(1)
+
+	if IsValid(attacker) and attacker:IsPlayer() then
+		if attacker == ply then
+			attacker:AddFrags(-1)
+		else
+			attacker:AddFrags(1)
+		end
+	end
+end
+
 hook.Add("PlayerHurt", "HSR_ph", function(ply, atkr, hp, dmg)
 	if not ply:GetNWBool("downed") and hp <= 0  then 
 		ply:SetHealth(ply:GetMaxHealth())
