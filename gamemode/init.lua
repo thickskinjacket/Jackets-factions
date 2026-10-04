@@ -1,4 +1,5 @@
 include("shared.lua")
+include("player.lua")
 include("player_ext.lua")
 include("player_ext_shared.lua")
 include("sv_workshop.lua")
@@ -7,8 +8,9 @@ AddCSLuaFile("shared.lua")
 AddCSLuaFile("cl_init.lua")
 AddCSLuaFile("cl_hud.lua")
 
-CreateConVar("jf_round_preparation_time", "15", FCVAR_NOTIFY)
+CreateConVar("jf_round_preparation_time", "2", FCVAR_NOTIFY)
 CreateConVar("jf_round_time", "300", FCVAR_NOTIFY)
+CreateConVar("jf_round_post_time", "2", FCVAR_NOTIFY)
 
 util.AddNetworkString("JF_NotifyRoundState")
 
@@ -58,6 +60,12 @@ function WaitForPlayers()
     end
 end
 
+local function AssignTeams(players)
+    for i, ply in player.Iterator() do
+        ply:SetTeam(i % 2 == 0 and TEAM_FIREFLIES or TEAM_HUNTERS)
+    end
+end
+
 function SetRoundEnd(endtime)
     SetGlobalFloat("jf_round_end", endtime)
 end
@@ -69,10 +77,17 @@ function PrepareRound()
     local roundTime = GetConVar("jf_round_time"):GetInt()
     SetRoundEnd(CurTime() + roundTime)
 
+    local players = {}
     for _, ply in player.Iterator() do
         if IsValid(ply) and ply:ShouldSpawn() then
-            ply:Spawn()
+            table.insert(players, ply)
         end
+    end
+
+    AssignTeams(players)
+
+    for _, ply in ipairs(players) do
+        ply:Spawn()
     end
 
     local roundPrepTime = GetConVar("jf_round_preparation_time"):GetInt()
@@ -98,7 +113,9 @@ function EndRound()
     SetRoundState(ROUND_OVER)
 
     print("Round over.")
-    timer.Simple(10, function()
+
+    local postRoundTime = GetConVar("jf_round_post_time"):GetInt()
+    timer.Simple(postRoundTime, function()
         WaitForPlayers()
     end)
 end
