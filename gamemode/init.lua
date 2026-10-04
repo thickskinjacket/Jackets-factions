@@ -11,6 +11,8 @@ AddCSLuaFile("cl_hud.lua")
 CreateConVar("jf_round_preparation_time", "2", FCVAR_NOTIFY)
 CreateConVar("jf_round_time", "300", FCVAR_NOTIFY)
 CreateConVar("jf_round_post_time", "2", FCVAR_NOTIFY)
+CreateConVar("jf_respawn_time", "5", FCVAR_NOTIFY)
+CreateConVar("jf_team_lives", "4", FCVAR_NOTIFY)
 
 util.AddNetworkString("JF_NotifyRoundState")
 
@@ -66,6 +68,39 @@ local function AssignTeams(players)
     end
 end
 
+local function ResetTeamLives()
+    local teamLives = GetConVar("jf_team_lives"):GetInt()
+    GAMEMODE.TeamLives = {}
+    GAMEMODE.TeamLives[TEAM_FIREFLIES] = teamLives
+    GAMEMODE.TeamLives[TEAM_HUNTERS] = teamLives
+
+    SetGlobalInt("jf_teamlives_" .. TEAM_FIREFLIES, GAMEMODE.TeamLives[TEAM_FIREFLIES])
+    SetGlobalInt("jf_teamlives_" .. TEAM_HUNTERS, GAMEMODE.TeamLives[TEAM_HUNTERS])
+end
+
+function StartWinCheck()
+    local firefliesAlive = GAMEMODE.TeamLives[TEAM_FIREFLIES] > 0
+    local huntersAlive = GAMEMODE.TeamLives[TEAM_HUNTERS] > 0
+
+    for _, ply in player.Iterator() do
+        if IsValid(ply) then
+            local isPlaying = ply:Alive() or (ply.NextRespawnTime ~= nil)
+
+            if isPlaying then
+                if ply:Team() == TEAM_FIREFLIES then
+                    firefliesAlive = true
+                elseif ply:Team() == TEAM_HUNTERS then
+                    huntersAlive = true
+                end
+            end
+        end
+    end
+
+    if not firefliesAlive or not huntersAlive then
+        EndRound()
+    end
+end
+
 function SetRoundEnd(endtime)
     SetGlobalFloat("jf_round_end", endtime)
 end
@@ -76,6 +111,8 @@ function PrepareRound()
     print("Preparing round...")
     local roundTime = GetConVar("jf_round_time"):GetInt()
     SetRoundEnd(CurTime() + roundTime)
+    
+    ResetTeamLives()
 
     local players = {}
     for _, ply in player.Iterator() do
