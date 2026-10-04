@@ -197,7 +197,7 @@ local ringConfig = {
 
 local plyStartHP, plyOldHP, plyNewHP = 0, -1, -1
 
-hook.Add("HUDPaint", "garrysfactions_hud", function()
+hook.Add("HUDPaint", "jacketsfactions_hud", function()
     local scale = ScrH() / 1080
 
     local ply = LocalPlayer()
@@ -250,3 +250,25 @@ hook.Add("HUDPaint", "garrysfactions_hud", function()
     -- Health ring
     DrawHealthRing(ringX, ringY, ringRadius, ringThickness, hp, hpMax)
 end, HOOK_HIGH)
+
+hook.Add("PreDrawHalos", "jacketsfactions_teammate_halos", function()
+    local ply = LocalPlayer()
+    
+    if not IsValid(ply) then return end
+
+    local plyTeam = ply:Team()
+
+    local teammates = {}
+    
+    for _, otherPly in player.Iterator() do
+        if IsValid(otherPly) and otherPly:Alive() and otherPly ~= ply and otherPly:Team() == plyTeam then
+            table.insert(teammates, otherPly)
+        end
+    end
+
+    if #teammates > 0 then
+        local haloColor = team.GetColor(plyTeam) or color_white
+        
+        halo.Add(teammates, haloColor, 2, 2, 2, true, true)
+    end
+end)
