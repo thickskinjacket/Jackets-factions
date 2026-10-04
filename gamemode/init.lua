@@ -200,3 +200,16 @@ concommand.Add("jf_lives", function(ply, cmd, args)
     print("Fireflies: " .. firefliesLives)
     print("Hunters: " .. huntersLives)
 end)
+
+concommand.Add("jf_set_team", function(ply, cmd, args)
+    if not IsValid(ply) or not ply:IsAdmin() then return end
+    
+    local teamID = tonumber(args[1])
+    if not teamID then
+        ply:PrintMessage(HUD_PRINTCONSOLE, "Usage: jf_set_team <team_number>")
+        return
+    end
+
+    ply:SetTeam(teamID)
+    ply:PrintMessage(HUD_PRINTCONSOLE, "You are now on team: " .. team.GetName(teamID))
+end)
