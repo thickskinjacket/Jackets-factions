@@ -176,3 +176,17 @@ concommand.Add("jf_force_start", function(ply, cmd, args)
     -- 2. Instantly jump to the active phase
     PrepareRound()
 end)
+
+concommand.Add("jf_lives", function(ply, cmd, args)
+    if IsValid(ply) and not ply:IsAdmin() then
+        ply:PrintMessage(HUD_PRINTCONSOLE, "You do not have permission to check team lives.")
+        return
+    end
+
+    local firefliesLives = GAMEMODE.TeamLives[TEAM_FIREFLIES] or 0
+    local huntersLives = GAMEMODE.TeamLives[TEAM_HUNTERS] or 0
+
+    print("[Debug] Team Lives:")
+    print("Fireflies: " .. firefliesLives)
+    print("Hunters: " .. huntersLives)
+end)
