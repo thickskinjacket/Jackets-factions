@@ -1,8 +1,6 @@
 util.AddNetworkString("downedPlayerLocation")
 util.AddNetworkString("changeConVarValue")
 
-include("./sh_revive.lua")
-
 hook.Add("PlayerHurt", "HSR_ph", function(ply, atkr, hp, dmg)
 	if GetConVar("hsr_enable"):GetInt() < 1 then return end 
 

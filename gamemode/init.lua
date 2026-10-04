@@ -10,7 +10,6 @@ AddCSLuaFile("shared.lua")
 AddCSLuaFile("cl_init.lua")
 AddCSLuaFile("cl_hud.lua")
 AddCSLuaFile("cl_revive.lua")
-AddCSLuaFile("sh_revive.lua")
 
 CreateConVar("jf_round_preparation_time", "2", FCVAR_NOTIFY)
 CreateConVar("jf_round_time", "300", FCVAR_NOTIFY)

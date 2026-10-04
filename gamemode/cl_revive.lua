@@ -1,22 +1,3 @@
-include("revive/sh_revive.lua")
-
-function createFont()
-    surface.CreateFont("plyNickFont", {
-        font = "D-DIN",
-        size = 72 * (ScrW() / 1600) 
-    })
-    surface.CreateFont("textFont", {
-        font = "D-DIN",
-        size = 32 * (ScrW() / 1600)
-    })
-    surface.CreateFont("textSmallFont", {
-        font = "D-DIN",
-        size = 12 * (ScrW() / 1600)
-    })
-end
-
-createFont()
-
 function draw.JCircle(PositionX, PositionY, Radius, jCache)
     local circle = {}
     local i = 0
@@ -100,10 +81,6 @@ function draw.JRing(PositionX, PositionY, Radius, Thickness, StartAng, EndAng, j
         end
     render.SetStencilEnable(false)
 end
-
-hook.Add("OnScreenSizeChanged", "abcdefghijklmnopqrstuvwxyz", function()
-    createFont()
-end)
 
 local chasePos
 
