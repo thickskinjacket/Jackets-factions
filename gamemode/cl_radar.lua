@@ -200,8 +200,9 @@ local function DrawRadarRoundTime(radarX, radarY, radarRadius, scale)
 end
 
 local function DrawRadarTeamLives(ply, radarX, radarY, radarRadius, scale)
-    local isSpectator = ply:Team() == TEAM_SPECTATOR
-    local ownTeam = isSpectator and TEAM_FIREFLIES or ply:Team()
+    local deadSpectatorTeam = ply:GetNWInt("jf_dead_spectator_team", 0)
+    local isSpectator = ply:Team() == TEAM_SPECTATOR and deadSpectatorTeam == 0
+    local ownTeam = deadSpectatorTeam > 0 and deadSpectatorTeam or (isSpectator and TEAM_FIREFLIES or ply:Team())
     local enemyTeam = ownTeam == TEAM_FIREFLIES and TEAM_HUNTERS or TEAM_FIREFLIES
     local ownLives = GetGlobalInt("jf_teamlives_" .. ownTeam, 0)
     local enemyLives = GetGlobalInt("jf_teamlives_" .. enemyTeam, 0)
@@ -250,8 +251,9 @@ local function DrawRadarTeamLives(ply, radarX, radarY, radarRadius, scale)
 end
 
 local function DrawRadarTeamPlayers(ply, radarX, radarY, radarRadius, scale)
-    local isSpectator = ply:Team() == TEAM_SPECTATOR
-    local ownTeam = isSpectator and TEAM_FIREFLIES or ply:Team()
+    local deadSpectatorTeam = ply:GetNWInt("jf_dead_spectator_team", 0)
+    local isSpectator = ply:Team() == TEAM_SPECTATOR and deadSpectatorTeam == 0
+    local ownTeam = deadSpectatorTeam > 0 and deadSpectatorTeam or (isSpectator and TEAM_FIREFLIES or ply:Team())
     local enemyTeam = ownTeam == TEAM_FIREFLIES and TEAM_HUNTERS or TEAM_FIREFLIES
     local ownPlayers = {}
     local enemyPlayers = {}
@@ -299,6 +301,7 @@ hook.Add("HUDPaint", "jacketsfactions_radar", function()
     local ply = LocalPlayer()
     if not IsValid(ply) then return end
 
+    local deadSpectator = ply:GetNWInt("jf_dead_spectator_team", 0) > 0
     local isSpectator = ply:Team() == TEAM_SPECTATOR
     if not isSpectator and not ply:Alive() then return end
 
@@ -308,12 +311,16 @@ hook.Add("HUDPaint", "jacketsfactions_radar", function()
     local radarY =  radarConfig.margin.y * scale + radarRadius
     local radarOrigin = isSpectator and EyePos() or GetRadarPlayerPosition(ply)
 
-    surface.SetDrawColor(0, 0, 0, 128)
-    surface.SetMaterial(radarCircleMaterial)
-    surface.DrawPoly(draw.JCircle(radarX, radarY, radarRadius, radarCircleCache))
+    if not deadSpectator then
+        surface.SetDrawColor(0, 0, 0, 128)
+        surface.SetMaterial(radarCircleMaterial)
+        surface.DrawPoly(draw.JCircle(radarX, radarY, radarRadius, radarCircleCache))
+    end
     DrawRadarRoundTime(radarX, radarY, radarRadius, scale)
     DrawRadarTeamLives(ply, radarX, radarY, radarRadius, scale)
     DrawRadarTeamPlayers(ply, radarX, radarY, radarRadius, scale)
+
+    if deadSpectator then return end
 
     local playerColor = team.GetColor(ply:Team()) or color_white
     if not isSpectator then

@@ -43,6 +43,8 @@ util.AddNetworkString("JF_SetSpectator")
 
 local function RestoreSpectator(ply)
     ply.JFSpectator = false
+    ply.JFDeadSpectatorTeam = nil
+    ply:SetNWInt("jf_dead_spectator_team", 0)
     ply.JFSpectatorPendingDisable = nil
     ply:UnSpectate()
     ply:SetNoDraw(false)
@@ -65,6 +67,8 @@ net.Receive("JF_SetSpectator", function(_, ply)
     end
 
     ply.JFSpectator = true
+    ply.JFDeadSpectatorTeam = nil
+    ply:SetNWInt("jf_dead_spectator_team", 0)
     ply.JFSpectatorPendingDisable = nil
     ply:SetTeam(TEAM_SPECTATOR)
     if ply:Alive() then
@@ -101,6 +105,8 @@ function GM:PlayerSpawn(ply)
         return
     end
 
+    ply.JFDeadSpectatorTeam = nil
+    ply:SetNWInt("jf_dead_spectator_team", 0)
     self.BaseClass.PlayerSpawn(self, ply)
     ply:SetWalkSpeed(175)
     ply:SetRunSpeed(300)
@@ -325,6 +331,14 @@ local function SpawnRespawnWave()
 
     for _, ply in player.Iterator() do
         if not IsValid(ply) or ply.JFSpectator or ply:Alive() or ply.NextRespawnWave ~= true then continue end
+
+        if ply.JFDeadSpectatorTeam then
+            ply:SetTeam(ply.JFDeadSpectatorTeam)
+            ply.JFDeadSpectatorTeam = nil
+            ply:SetNWInt("jf_dead_spectator_team", 0)
+            ply:UnSpectate()
+            ply:SetNoDraw(false)
+        end
 
         ply:Spawn()
         ply.NextRespawnWave = nil
