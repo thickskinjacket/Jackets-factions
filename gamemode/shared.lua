@@ -5,6 +5,18 @@ DeriveGamemode("sandbox")
 
 GAMEMODE.BleedOutTime = 20
 GAMEMODE.ReviveTime = 5
+GAMEMODE.BleedOutSpeedupPerDown = 0.1
+GAMEMODE.BleedOutSpeedupLimit = 0.5
+
+function GAMEMODE:GetBleedOutTime(ply)
+    local downCount = IsValid(ply) and ply:GetNWInt("jf_down_count", 0) or 0
+    local speedup = math.min(
+        downCount * self.BleedOutSpeedupPerDown,
+        self.BleedOutSpeedupLimit
+    )
+
+    return self.BleedOutTime * (1 - speedup)
+end
 
 include("sh_revive.lua")
 

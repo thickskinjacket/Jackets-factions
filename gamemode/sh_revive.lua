@@ -46,6 +46,8 @@ if CLIENT then
 end
 
 function HSR.createDownedRagdoll(ply)
+	ply:SetNWInt("jf_down_count", ply:GetNWInt("jf_down_count", 0) + 1)
+
 	local ragdoll = ents.Create("prop_ragdoll")
 	ragdoll:SetNWFloat("bleedOutStartTime", CurTime() + .1)
 	ragdoll:SetModel(ply:GetModel())

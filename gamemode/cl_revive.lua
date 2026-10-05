@@ -64,7 +64,7 @@ hook.Add("HUDPaintBackground", "downed_bleed_out_hud", function()
     -- Bleed out
     local startBleedOutTime = rag:GetNWFloat("bleedOutStartTime", 0)
     local elapsedBleedOut = CurTime() - startBleedOutTime
-    local fractionBleedOut = 1 - math.Clamp(elapsedBleedOut / GAMEMODE.BleedOutTime, 0, 1)
+    local fractionBleedOut = 1 - math.Clamp(elapsedBleedOut / GAMEMODE:GetBleedOutTime(ply), 0, 1)
 
     -- Revive
     local startReviveTime = rag:GetNWFloat("reviveStartTime", 0)
@@ -140,7 +140,7 @@ hook.Add("PostDrawOpaqueRenderables", "draw_downed_players_icons", function()
         else
             elapsedBleedOut = CurTime() - startBleedOutTime
         end    
-        local fractionBleedOut = 1 - math.Clamp(elapsedBleedOut / GAMEMODE.BleedOutTime, 0, 1)
+        local fractionBleedOut = 1 - math.Clamp(elapsedBleedOut / GAMEMODE:GetBleedOutTime(ply), 0, 1)
 
         local startReviveTime = rag:GetNWFloat("reviveStartTime", 0)
         local elapsedRevive = CurTime() - startReviveTime

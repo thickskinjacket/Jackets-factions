@@ -99,7 +99,7 @@ hook.Add("Think", "HSR_bleed_out", function()
 		
 		if rag.pauseBleedOutTime then continue end
 
-		if elapsedTime >= GAMEMODE.BleedOutTime then
+		if elapsedTime >= GAMEMODE:GetBleedOutTime(ply) then
 			local attacker = IsValid(rag.attacker) and rag.attacker or ply
 			local inflictor = IsValid(rag.attackerWeapon) and rag.attackerWeapon or attacker
 
@@ -290,6 +290,7 @@ hook.Add("PlayerSpawn", "HSR_ps", function(ply, _)
 	local downed_ragdoll = ply:GetNWEntity("downed_ragdoll")
 
 	ply:SetNWBool("downed", false)
+	ply:SetNWInt("jf_down_count", 0)
 	HSR.downedPlayers[ply] = nil
 
 	if not IsValid(downed_ragdoll) then return end
