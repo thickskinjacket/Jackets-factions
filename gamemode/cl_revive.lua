@@ -11,41 +11,31 @@ hook.Add("CalcView", "downed_state_view", function(ply, pos, ang, fov)
         return 
     end
 
-    if GetConVar("hsr_ragdoll_first_person"):GetInt() >= 1 then
-    	if ply:GetNWBool("downed") then
-    		downed_ragdoll:ManipulateBoneScale(6, Vector(0, 0, 0))
+    downed_ragdoll:ManipulateBoneScale(6, Vector(1, 1, 1))
+
+    local target = downed_ragdoll:WorldSpaceCenter() + Vector(0, 0, 20)
+
+    local desired = target - ang:Forward() * 60
+
+    local tr = util.TraceHull({
+        start  = target,
+        endpos = desired,
+        filter = function(ent)
+            if ent:IsPlayer() or ent:IsNPC() then return false end
         end
-    	
-		local eyes = downed_ragdoll:GetAttachment(downed_ragdoll:LookupAttachment("eyes"))
-        
-        return {
-            origin = eyes.Pos
-        }
-    else
-        local target = downed_ragdoll:WorldSpaceCenter() + Vector(0, 0, 20)
+    })
 
-        local desired = target - ang:Forward() * 60
+    local finalPos = tr.Hit and (tr.HitPos + tr.HitNormal) or desired
 
-        local tr = util.TraceHull({
-            start  = target,
-            endpos = desired,
-            filter = function(ent)
-                if ent:IsPlayer() or ent:IsNPC() then return false end
-            end
-        })
+    local t = math.Clamp(FrameTime() * 8, 0, 1)
+    chasePos = chasePos and LerpVector(t, chasePos, finalPos) or finalPos
 
-        local finalPos = tr.Hit and (tr.HitPos + tr.HitNormal) or desired
+    local camAng = (target - chasePos):Angle()
 
-        local t = math.Clamp(FrameTime() * 8, 0, 1)
-        chasePos = chasePos and LerpVector(t, chasePos, finalPos) or finalPos
-
-        local camAng = (target - chasePos):Angle()
-
-        return {
-            origin = chasePos,
-            angles = camAng
-        }
-    end
+    return {
+        origin = chasePos,
+        angles = camAng
+    }
 end)
 
 local downedPlayers = {}
