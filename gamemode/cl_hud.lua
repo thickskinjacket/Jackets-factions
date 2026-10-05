@@ -356,8 +356,13 @@ hook.Add("HUDPaint", "JF_enemy_names", function()
         end
 
         local isDowned = otherPly:GetNWBool("downed")
-        local target = isDowned and otherPly:GetNWEntity("downed_ragdoll") or otherPly
-        local isVisible = otherPly:Alive() and IsValid(target)
+        local downedRagdoll = otherPly:GetNWEntity("downed_ragdoll")
+        local target = otherPly
+        if IsValid(downedRagdoll) and (isDowned or not otherPly:Alive()) then
+            target = downedRagdoll
+        end
+
+        local isVisible = IsValid(target) and (otherPly:Alive() or isSpectator)
         local tagPosition
 
         if isVisible then
