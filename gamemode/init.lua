@@ -56,6 +56,8 @@ end
 
 function GM:PlayerSpawn(ply)
     self.BaseClass.PlayerSpawn(self, ply)
+    ply:SetWalkSpeed(175)
+    ply:SetRunSpeed(300)
 
     local model = ply.JFTeamModel or GetRandomTeamModel(ply)
     if model then
