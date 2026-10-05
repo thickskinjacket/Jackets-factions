@@ -12,6 +12,7 @@ local radarCircleCache = {}
 local radarBlipCache = {}
 local radarCircleMaterial = Material("vgui/white")
 local radarHealthIcon = Material("hud/small-health.png")
+local radarPlayerIcon = Material("hud/up-arrow2.png")
 
 local function DrawRadarBlip(x, y, color, scale, isDowned)
     if isDowned then
@@ -32,6 +33,15 @@ local function DrawRadarBlip(x, y, color, scale, isDowned)
     surface.SetDrawColor(color)
     surface.SetMaterial(radarCircleMaterial)
     surface.DrawPoly(draw.JCircle(x, y, radarConfig.blipRadius * scale, radarBlipCache))
+end
+
+local function DrawRadarPlayerBlip(x, y, scale)
+    local iconWidth = radarConfig.blipRadius * 2.5 * scale
+    local iconHeight = radarConfig.blipRadius * 3.5 * scale
+
+    surface.SetDrawColor(Color(225, 255, 255))
+    surface.SetMaterial(radarPlayerIcon)
+    surface.DrawTexturedRect(x - (iconWidth / 2), y - (iconHeight / 2), iconWidth, iconHeight)
 end
 
 hook.Add("HUDPaint", "garrysfactions_radar", function()
@@ -55,7 +65,7 @@ hook.Add("HUDPaint", "garrysfactions_radar", function()
     surface.DrawPoly(draw.JCircle(radarX, radarY, radarRadius, radarCircleCache))
 
     local playerColor = team.GetColor(ply:Team()) or color_white
-    DrawRadarBlip(radarX, radarY, playerColor, scale, false)
+    DrawRadarPlayerBlip(radarX, radarY, scale)
 
     local yaw = math.rad(ply:EyeAngles().y)
     local sinYaw = math.sin(yaw)
