@@ -53,11 +53,14 @@ function GM:PlayerSetModel(ply)
 end
 
 function GM:PlayerSpawn(ply)
-    local model = ply.JFTeamModel or GetRandomTeamModel(ply)
-    if not model then return end
+    self.BaseClass.PlayerSpawn(self, ply)
 
-    ply.JFTeamModel = model
-    ply:SetModel(model)
+    local model = ply.JFTeamModel or GetRandomTeamModel(ply)
+    if model then
+        ply.JFTeamModel = model
+        ply:SetModel(model)
+        ply:SetupHands()
+    end
 
     timer.Simple(0, function()
         if IsValid(ply) and ply:Alive() then
