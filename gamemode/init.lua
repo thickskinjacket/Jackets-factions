@@ -3,7 +3,6 @@ include("player.lua")
 include("player_ext.lua")
 include("player_ext_shared.lua")
 include("sv_workshop.lua")
-include("sv_arc9_settings.lua")
 include("sv_revive.lua")
 include("sv_radar.lua")
 

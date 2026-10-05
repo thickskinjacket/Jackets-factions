@@ -18,85 +18,85 @@ JF_CONFIG = JF_CONFIG or {}
 JF_CONFIG.WEAPON_POOLS = {
 	LONG_GUN = {
 		{
-			class = "arc9_burstrifle",
+			class = "tlou_burstrifle",
 			ammo = { start = 15, cost = 120, bullets = 3 }
 		},
 		{
-			class = "arc9_frontier",
+			class = "tlou_frontier",
 			ammo = { start = 6, cost = 225, bullets = 3 }
 		},
 		{
-			class = "arc9_huntingrifle",
+			class = "tlou_huntingrifle",
 			ammo = { start = 5, cost = 240, bullets = 3 }
 		},
 		{
-			class = "arc9_semiauto",
+			class = "tlou_semiauto",
 			ammo = { start = 7, cost = 220, bullets = 4 }
 		},
 		{
-			class = "arc9_fullautorifle",
+			class = "tlou_fullautorifle",
 			ammo = { start = 12, cost = 200, bullets = 5 }
 		},
 		{
-			class = "arc9_tacshotgun",
+			class = "tlou_tacshotgun",
 			ammo = { start = 5, cost = 210, bullets = 3 }
 		},
 		{
-			class = "arc9_variablerifle",
+			class = "tlou_variablerifle",
 			ammo = { start = 9, cost = 150, bullets = 5 }
 		},
 	},
 	SIDE_ARM = {
 		{
-			class = "arc9_9mm",
+			class = "tlou_9mm",
 			ammo = { start = 10, cost = 150, bullets = 5 }
 		},
 		{
-			class = "arc9_burstpistol",
+			class = "tlou_burstpistol",
 			ammo = { start = 12, cost = 120, bullets = 3 }
 		},
 		{
-			class = "arc9_enforcer",
+			class = "tlou_enforcer",
 			ammo = { start = 60, cost = 160, bullets = 5 }
 		},
 		{
-			class = "arc9_revolver",
+			class = "tlou_revolver",
 			ammo = { start = 7, cost = 180, bullets = 4 }
 		},
 		{
-			class = "arc9_shorty",
+			class = "tlou_shorty",
 			ammo = { start = 7, cost = 75, bullets = 1 }
 		},
 
 	},
 	BUYABLE_GUNS = {
 		{
-			class = "arc9_dbarrel",
+			class = "tlou_dbarrel",
 			ammo = { start = 4, cost = 280, bullets = 4 },
 			buyCost = 240
 		},
 		{
-			class = "arc9_specter",
+			class = "tlou_specter",
 			ammo = { start = 15, cost = 390, bullets = 15 }, // 390 --> 465
 			buyCost = 315
 		},
 		{
-			class = "arc9_woodshotgun",
+			class = "tlou_woodshotgun",
 			ammo = { start = 2, cost = 480, bullets = 2 },
 			buyCost = 400
 		},
 		{
-			class = "arc9_assaultrifle",
+			class = "tlou_assaultrifle",
 			ammo = { start = 10, cost = 380, bullets = 10 },
 			buyCost = 300
 		},
 		{
-			class = "arc9_militarysniper",
+			class = "tlou_militarysniper",
 			ammo = { start = 4, cost = 480, bullets = 4 },
 			buyCost = 400
 		},
 		{
-			class = "arc9_diablo",
+			class = "tlou_diablo",
 			ammo = { start = 3, cost = 315, bullets = 3 },
 			buyCost = 270
 		},

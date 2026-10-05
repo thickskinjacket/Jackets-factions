@@ -1,5 +1,6 @@
-resource.AddWorkshop("2910505837")
-resource.AddWorkshop("2919745370")
+resource.AddWorkshop("2979402901")
+resource.AddWorkshop("2840031720")
+resource.AddWorkshop("2840032487")
 resource.AddWorkshop("2928751797")
 resource.AddWorkshop("2928736781")
 resource.AddWorkshop("1363659220")
