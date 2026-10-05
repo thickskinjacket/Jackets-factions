@@ -12,6 +12,10 @@ hook.Add("HUDShouldDraw", "HideTheDefaultHUD", function(name)
     end
 end)
 
+hook.Add("HUDDrawTargetID", "HideDefaultTargetID", function()
+    return false
+end)
+
 local HP_CIRCLE_CACHE = {}
 local HP_PIE_CACHE = {}
 local GHOST_CIRCLE_CACHE = {}
