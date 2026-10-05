@@ -16,10 +16,23 @@ TEAM_HUNTERS = 2
 JF_CONFIG = JF_CONFIG or {}
 
 JF_CONFIG.WEAPON_TIER_MULTIPLIERS = {
-    ["tlou_variablerifle"] = {
-        [1] = { rpm = 1, accuracy = 1, recoil = 0.1 },
-        [2] = { rpm = 1.08, accuracy = 0.9, recoil = 0.1 },
-        [3] = { rpm = 1.16, accuracy = 0.8, recoil = 0.1 }
+    [1] = {
+        rpm = 1,
+        accuracy = 1,
+        recoil = 1,
+        clipSize = 1
+    },
+    [2] = {
+        rpm = 1.1,
+        accuracy = 0.9,
+        recoil = 0.85,
+        clipSize = 1.2
+    },
+    [3] = {
+        rpm = 1.2,
+        accuracy = 0.8,
+        recoil = 0.7,
+        clipSize = 1.4
     }
 }
 

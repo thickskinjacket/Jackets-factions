@@ -114,11 +114,11 @@ end
 local function ApplyWeaponTier(weapon, tier)
     if not IsValid(weapon) then return false end
 
-    local weaponClass = weapon:GetClass()
-    local tierConfig = JF_CONFIG.WEAPON_TIER_MULTIPLIERS[weaponClass][tier]
+    local tierConfig = JF_CONFIG.WEAPON_TIER_MULTIPLIERS[tier]
     local rpmMultiplier = tierConfig.rpm
     local accuracyMultiplier = tierConfig.accuracy
     local recoilMultiplier = tierConfig.recoil
+    local clipSizeMultiplier = tierConfig.clipSize
 
     weapon.Primary_TFA = weapon.Primary_TFA or weapon.Primary or {}
     weapon.JFTierBaseStats = weapon.JFTierBaseStats or {}
@@ -127,6 +127,7 @@ local function ApplyWeaponTier(weapon, tier)
     weapon.JFTierBaseStats.Spread = weapon.JFTierBaseStats.Spread or weapon.Primary_TFA.Spread
     weapon.JFTierBaseStats.IronAccuracy = weapon.JFTierBaseStats.IronAccuracy or weapon.Primary_TFA.IronAccuracy
     weapon.JFTierBaseStats.Recoil = weapon.JFTierBaseStats.Recoil or weapon.Primary_TFA.Recoil
+    weapon.JFTierBaseStats.ClipSize = weapon.JFTierBaseStats.ClipSize or weapon.Primary_TFA.ClipSize
 
     if weapon.RecoilTable and not weapon.JFTierBaseRecoilTable then
         weapon.JFTierBaseRecoilTable = {}
@@ -141,6 +142,7 @@ local function ApplyWeaponTier(weapon, tier)
     weapon.Primary_TFA.Spread = baseStats.Spread * accuracyMultiplier
     weapon.Primary_TFA.IronAccuracy = baseStats.IronAccuracy * accuracyMultiplier
     weapon.Primary_TFA.Recoil = baseStats.Recoil
+    weapon.Primary_TFA.ClipSize = math.max(1, math.floor(baseStats.ClipSize * clipSizeMultiplier + 0.5))
 
     if weapon.JFTierBaseRecoilTable then
         weapon.RecoilTable = {}
@@ -158,6 +160,7 @@ local function ApplyWeaponTier(weapon, tier)
     weapon:ClearStatCache("Primary.Spread")
     weapon:ClearStatCache("Primary.IronAccuracy")
     weapon:ClearStatCache("Primary.Recoil")
+    weapon:ClearStatCache("Primary.ClipSize")
 
     weapon.JFTier = tier
     return true

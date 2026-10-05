@@ -17,9 +17,9 @@ local function ApplyClientWeaponTier(weapon, tier)
         return
     end
 
-    local weaponClass = weapon:GetClass()
-    local tierConfig = JF_CONFIG.WEAPON_TIER_MULTIPLIERS[weaponClass][tier]
+    local tierConfig = JF_CONFIG.WEAPON_TIER_MULTIPLIERS[tier]
     local recoilMultiplier = tierConfig.recoil
+    local clipSizeMultiplier = tierConfig.clipSize
 
     if weapon.RecoilTable and not weapon.JFTierBaseRecoilTable then
         weapon.JFTierBaseRecoilTable = {}
@@ -40,6 +40,11 @@ local function ApplyClientWeaponTier(weapon, tier)
             )
         end
     end
+
+    weapon.Primary_TFA = weapon.Primary_TFA or weapon.Primary
+    weapon.JFTierBaseClipSize = weapon.JFTierBaseClipSize or weapon.Primary_TFA.ClipSize
+    weapon.Primary_TFA.ClipSize = math.max(1, math.floor(weapon.JFTierBaseClipSize * clipSizeMultiplier + 0.5))
+    weapon:ClearStatCache("Primary.ClipSize")
 
     weapon.JFTier = tier
 end
