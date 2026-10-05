@@ -117,17 +117,66 @@ local function DrawRadarRoundTime(radarX, radarY, radarRadius, scale)
     local seconds = totalSeconds % 60
     local timeText = string.format("%d:%02d", minutes, seconds)
 
-    draw.SimpleTextOutlined(
-        timeText,
-        "TLOU_Font_Ammo_Big",
-        radarX,
-        radarY - radarRadius - 5,
-        color_white,
-        TEXT_ALIGN_CENTER,
-        TEXT_ALIGN_BOTTOM,
-        1 * scale,
-        Color(0, 0, 0, 200)
-    )
+    draw.TextShadow({
+        text = timeText,
+        font = "TLOU_Font_Ammo_Big",
+        pos = {
+            radarX,
+            radarY - radarRadius - (5 * scale)
+        },
+        color = color_white,
+        xalign = TEXT_ALIGN_CENTER,
+        yalign = TEXT_ALIGN_BOTTOM
+    }, 1, 200)
+end
+
+local function DrawRadarTeamLives(ply, radarX, radarY, radarRadius, scale)
+    local ownTeam = ply:Team()
+    local enemyTeam = ownTeam == TEAM_FIREFLIES and TEAM_HUNTERS or TEAM_FIREFLIES
+    local ownLives = GetGlobalInt("jf_teamlives_" .. ownTeam, 0)
+    local enemyLives = GetGlobalInt("jf_teamlives_" .. enemyTeam, 0)
+    local ownFont = ownLives > enemyLives and "jf_radar_lives_big" or "jf_radar_lives"
+    local enemyFont = enemyLives > ownLives and "jf_radar_lives_big" or "jf_radar_lives"
+    local colonFont = "jf_radar_lives"
+    local ownText = tostring(ownLives)
+    local enemyText = tostring(enemyLives)
+    local gap = 3 * scale
+
+    surface.SetFont(colonFont)
+    local colonWidth, colonHeight = surface.GetTextSize(":")
+    surface.SetFont(ownFont)
+    local _, ownHeight = surface.GetTextSize(ownText)
+    surface.SetFont(enemyFont)
+    local _, enemyHeight = surface.GetTextSize(enemyText)
+    local colonX = radarX
+    local textY = radarY + radarRadius + (5 * scale) + math.max(colonHeight, ownHeight, enemyHeight) / 2
+
+    draw.TextShadow({
+        text = ownText,
+        font = ownFont,
+        pos = {colonX - (colonWidth / 2) - gap, textY},
+        color = team.GetColor(ownTeam) or color_white,
+        xalign = TEXT_ALIGN_RIGHT,
+        yalign = TEXT_ALIGN_CENTER
+    }, 1, 200)
+
+    draw.TextShadow({
+        text = ":",
+        font = colonFont,
+        pos = {colonX, textY},
+        color = color_white,
+        xalign = TEXT_ALIGN_CENTER,
+        yalign = TEXT_ALIGN_CENTER
+    }, 1, 200)
+
+    draw.TextShadow({
+        text = enemyText,
+        font = enemyFont,
+        pos = {colonX + (colonWidth / 2) + gap, textY},
+        color = Color(166, 49, 49),
+        xalign = TEXT_ALIGN_LEFT,
+        yalign = TEXT_ALIGN_CENTER
+    }, 1, 200)
 end
 
 hook.Add("HUDPaint", "garrysfactions_radar", function()
@@ -146,6 +195,7 @@ hook.Add("HUDPaint", "garrysfactions_radar", function()
     surface.SetMaterial(radarCircleMaterial)
     surface.DrawPoly(draw.JCircle(radarX, radarY, radarRadius, radarCircleCache))
     DrawRadarRoundTime(radarX, radarY, radarRadius, scale)
+    DrawRadarTeamLives(ply, radarX, radarY, radarRadius, scale)
 
     local playerColor = team.GetColor(ply:Team()) or color_white
     DrawRadarPlayerBlip(radarX, radarY, scale)

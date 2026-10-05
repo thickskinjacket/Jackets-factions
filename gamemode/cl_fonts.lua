@@ -23,6 +23,16 @@ function createFonts(scale)
         size = 36 * scale,
         weight = 500,
     })
+    surface.CreateFont("jf_radar_lives", {
+        font = "D-DIN",
+        size = 32 * scale,
+        weight = 500,
+    })
+    surface.CreateFont("jf_radar_lives_big", {
+        font = "D-DIN",
+        size = 46 * scale,
+        weight = 500,
+    })
     surface.CreateFont("jf_teammate_name", {
         font = "D-DIN",
         size = 16 * scale,
