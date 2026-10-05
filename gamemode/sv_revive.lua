@@ -20,6 +20,10 @@ end
 
 hook.Add("PlayerHurt", "HSR_ph", function(ply, atkr, hp, dmg)
 	if not ply:GetNWBool("downed") and hp <= 0  then 
+		if IsValid(atkr) and atkr:IsPlayer() and atkr ~= ply then
+			atkr:AddParts(100)
+		end
+
 		ply:SetHealth(ply:GetMaxHealth())
 		if ply:InVehicle() then ply:ExitVehicle() end
 

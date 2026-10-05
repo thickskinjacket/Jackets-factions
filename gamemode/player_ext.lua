@@ -8,6 +8,14 @@ function meta:GetParts()
     return self:GetNWInt("jf_parts", 0)
 end
 
+function meta:AddParts(amount)
+    amount = math.floor(amount)
+    if amount < 0 then return false end
+
+    self:SetParts(self:GetParts() + amount)
+    return true
+end
+
 function meta:SpendParts(amount)
     amount = math.floor(amount)
     if amount < 0 or self:GetParts() < amount then return false end
