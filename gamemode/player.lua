@@ -56,6 +56,7 @@ function GM:PlayerDeath(ply, attacker, dmginfo)
 
     local roundState = GetRoundState()
     local plyTeam = ply:Team()
+    ply.JFRespawnAvailableAt = CurTime() + 4
 
     if roundState == ROUND_ACTIVE then
         if GAMEMODE.TeamLives[plyTeam] > 0 then

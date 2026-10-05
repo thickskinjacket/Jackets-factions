@@ -259,14 +259,30 @@ local function DrawRadarTeamPlayers(ply, radarX, radarY, radarRadius, scale)
     local enemyPlayers = {}
 
     for _, playerEntity in player.Iterator() do
-        if not IsValid(playerEntity) or (isSpectator and not playerEntity:Alive()) then continue end
+        if not IsValid(playerEntity) then continue end
 
-        if playerEntity:Team() == ownTeam then
+        local playerTeam = playerEntity:GetNWInt("jf_dead_spectator_team", 0)
+        if playerTeam <= 0 then
+            playerTeam = playerEntity:Team()
+        end
+
+        if playerEntity == ply and deadSpectatorTeam > 0 then
             table.insert(ownPlayers, playerEntity)
-        elseif playerEntity:Team() == enemyTeam then
+        elseif isSpectator and not playerEntity:Alive() then
+            continue
+        elseif playerTeam == ownTeam then
+            table.insert(ownPlayers, playerEntity)
+        elseif playerTeam == enemyTeam then
             table.insert(enemyPlayers, playerEntity)
         end
     end
+
+    local function sortPlayersByUserID(first, second)
+        return first:UserID() < second:UserID()
+    end
+
+    table.sort(ownPlayers, sortPlayersByUserID)
+    table.sort(enemyPlayers, sortPlayersByUserID)
 
     local iconSize = 40 * scale
     local iconGap = -15 * scale

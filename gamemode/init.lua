@@ -105,6 +105,10 @@ function GM:PlayerSpawn(ply)
         return
     end
 
+    if ply.JFRespawnWaveSpawn then
+        ply.JFRespawnAvailableAt = nil
+        ply.JFRespawnWaveSpawn = nil
+    end
     ply.JFDeadSpectatorTeam = nil
     ply:SetNWInt("jf_dead_spectator_team", 0)
     self.BaseClass.PlayerSpawn(self, ply)
@@ -330,7 +334,10 @@ local function SpawnRespawnWave()
     if GetRoundState() ~= ROUND_ACTIVE then return end
 
     for _, ply in player.Iterator() do
-        if not IsValid(ply) or ply.JFSpectator or ply:Alive() or ply.NextRespawnWave ~= true then continue end
+        if not IsValid(ply) or ply.JFSpectator or ply:Alive() or ply.NextRespawnWave ~= true
+            or (ply.JFRespawnAvailableAt and CurTime() < ply.JFRespawnAvailableAt) then
+            continue
+        end
 
         if ply.JFDeadSpectatorTeam then
             ply:SetTeam(ply.JFDeadSpectatorTeam)
@@ -340,6 +347,7 @@ local function SpawnRespawnWave()
             ply:SetNoDraw(false)
         end
 
+        ply.JFRespawnWaveSpawn = true
         ply:Spawn()
         ply.NextRespawnWave = nil
 
