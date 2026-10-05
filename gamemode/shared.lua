@@ -13,6 +13,41 @@ ROUND_OVER = 3
 TEAM_FIREFLIES = 1
 TEAM_HUNTERS = 2
 
+PART_REWARDS = {
+    DOWN = {
+        amount = 100,
+        message = "Downed Enemy"
+    },
+    LONG_RANGE_KILL = {
+        amount = 30,
+        message = "Long Range Kill"
+    },
+    HEADSHOT = {
+        amount = 30,
+        message = "Headshot"
+    },
+    EXECUTION = {
+        amount = 50,
+        message = "Execution"
+    },
+    REVIVE = {
+        amount = 100,
+        message = "Revive"
+    },
+    MARK = {
+        amount = 15,
+        message = "Marked Target"
+    },
+    RAMPAGE = {
+        amount = 50,
+        message = "Rampage"
+    },
+    REVENGE = {
+        amount = 50,
+        message = "Revenge"
+    }
+}
+
 function GM:CreateTeams()
 	team.SetUp(TEAM_FIREFLIES, "Fireflies", Color(244, 203, 63), true)
 	team.SetUp(TEAM_HUNTERS, "Hunters", Color(64, 169, 233), true)

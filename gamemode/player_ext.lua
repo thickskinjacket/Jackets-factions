@@ -1,40 +1,5 @@
 local meta = FindMetaTable("Player")
 
-PART_REWARDS = {
-    DOWN = {
-        amount = 100,
-        message = "Downed Enemy"
-    },
-    LONG_RANGE_KILL = {
-        amount = 30,
-        message = "Long Range Kill"
-    },
-    HEADSHOT = {
-        amount = 30,
-        message = "Headshot"
-    },
-    EXECUTION = {
-        amount = 50,
-        message = "Execution"
-    },
-    REVIVE = {
-        amount = 100,
-        message = "Revive"
-    },
-    MARK = {
-        amount = 15,
-        message = "Marked Target"
-    },
-    RAMPAGE = {
-        amount = 50,
-        message = "Rampage"
-    },
-    REVENGE = {
-        amount = 50,
-        message = "Revenge"
-    }
-}
-
 function meta:SetParts(amount)
     self:SetNWInt("jf_parts", math.max(0, math.floor(amount)))
 end
