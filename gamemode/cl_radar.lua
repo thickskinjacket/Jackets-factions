@@ -108,6 +108,28 @@ local function GetRadarFireMarker(shooter)
     end
 end
 
+local function DrawRadarRoundTime(radarX, radarY, radarRadius, scale)
+    local remainingTime = math.max(0, GetGlobalFloat("jf_round_end", 0) - CurTime())
+    if remainingTime <= 0 then return end
+
+    local totalSeconds = math.ceil(remainingTime)
+    local minutes = math.floor(totalSeconds / 60)
+    local seconds = totalSeconds % 60
+    local timeText = string.format("%d:%02d", minutes, seconds)
+
+    draw.SimpleTextOutlined(
+        timeText,
+        "TLOU_Font_Ammo_Big",
+        radarX,
+        radarY - radarRadius - 5,
+        color_white,
+        TEXT_ALIGN_CENTER,
+        TEXT_ALIGN_BOTTOM,
+        1 * scale,
+        Color(0, 0, 0, 200)
+    )
+end
+
 hook.Add("HUDPaint", "garrysfactions_radar", function()
     local scale = ScrH() / 1080
 
@@ -123,6 +145,7 @@ hook.Add("HUDPaint", "garrysfactions_radar", function()
     surface.SetDrawColor(0, 0, 0, 128)
     surface.SetMaterial(radarCircleMaterial)
     surface.DrawPoly(draw.JCircle(radarX, radarY, radarRadius, radarCircleCache))
+    DrawRadarRoundTime(radarX, radarY, radarRadius, scale)
 
     local playerColor = team.GetColor(ply:Team()) or color_white
     DrawRadarPlayerBlip(radarX, radarY, scale)
