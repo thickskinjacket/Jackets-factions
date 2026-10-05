@@ -71,16 +71,28 @@ function GM:GiveRoundLoadout(ply)
 
     ply:StripWeapons()
 
-    local longGun = ply:Give(loadout.longGun, true)
-    local sideArm = ply:Give(loadout.sideArm, true)
+    local longGun = ply:Give(loadout.longGun.class, true)
+    local sideArm = ply:Give(loadout.sideArm.class, true)
 
     if not IsValid(longGun) then
-        ErrorNoHalt(string.format("[Garrys Factions] Failed to give long gun '%s' to %s\n", loadout.longGun, ply:Nick()))
+        ErrorNoHalt(string.format("[Garrys Factions] Failed to give long gun '%s' to %s\n", loadout.longGun.class, ply:Nick()))
     end
 
     if not IsValid(sideArm) then
-        ErrorNoHalt(string.format("[Garrys Factions] Failed to give sidearm '%s' to %s\n", loadout.sideArm, ply:Nick()))
+        ErrorNoHalt(string.format("[Garrys Factions] Failed to give sidearm '%s' to %s\n", loadout.sideArm.class, ply:Nick()))
     end
+
+    local function SetStartingAmmo(weapon, weaponConfig)
+        if not IsValid(weapon) then return end
+
+        local ammoType = weapon:GetPrimaryAmmoType()
+        if ammoType >= 0 then
+            ply:SetAmmo(weaponConfig.ammo.start, ammoType)
+        end
+    end
+
+    SetStartingAmmo(longGun, loadout.longGun)
+    SetStartingAmmo(sideArm, loadout.sideArm)
 
     if IsValid(longGun) then
         ply:SelectWeapon(longGun:GetClass())

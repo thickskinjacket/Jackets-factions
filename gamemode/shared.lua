@@ -15,28 +15,89 @@ TEAM_HUNTERS = 2
 
 GAMEMODE.WEAPON_POOLS = {
 	LONG_GUN = {
-		"arc9_burstrifle",
-		"arc9_frontier",
-		"arc9_huntingrifle",
-		"arc9_semiauto",
-		"arc9_fullautorifle",
-		"arc9_tacshotgun",
-		"arc9_variablerifle",
+		{
+			class = "arc9_burstrifle",
+			ammo = { start = 15, cost = 120, bullets = 3 }
+		},
+		{
+			class = "arc9_frontier",
+			ammo = { start = 6, cost = 225, bullets = 3 }
+		},
+		{
+			class = "arc9_huntingrifle",
+			ammo = { start = 5, cost = 240, bullets = 3 }
+		},
+		{
+			class = "arc9_semiauto",
+			ammo = { start = 7, cost = 220, bullets = 4 }
+		},
+		{
+			class = "arc9_fullautorifle",
+			ammo = { start = 12, cost = 200, bullets = 5 }
+		},
+		{
+			class = "arc9_tacshotgun",
+			ammo = { start = 5, cost = 210, bullets = 3 }
+		},
+		{
+			class = "arc9_variablerifle",
+			ammo = { start = 9, cost = 150, bullets = 5 }
+		},
 	},
 	SIDE_ARM = {
-		"arc9_9mm",
-		"arc9_burstpistol",
-		"arc9_enforcer",
-		"arc9_revolver",
-		"arc9_shorty",
+		{
+			class = "arc9_9mm",
+			ammo = { start = 10, cost = 150, bullets = 5 }
+		},
+		{
+			class = "arc9_burstpistol",
+			ammo = { start = 12, cost = 120, bullets = 3 }
+		},
+		{
+			class = "arc9_enforcer",
+			ammo = { start = 60, cost = 160, bullets = 5 }
+		},
+		{
+			class = "arc9_revolver",
+			ammo = { start = 7, cost = 180, bullets = 4 }
+		},
+		{
+			class = "arc9_shorty",
+			ammo = { start = 7, cost = 75, bullets = 1 }
+		},
+
 	},
 	BUYABLE_GUNS = {
-		"arc9_dbarrel",
-		"arc9_specter",
-		"arc9_woodshotgun",
-		"arc9_assaultrifle",
-		"arc9_militarysniper",
-		"arc9_diablo",
+		{
+			class = "arc9_dbarrel",
+			ammo = { start = 4, cost = 280, bullets = 4 },
+			buyCost = 240
+		},
+		{
+			class = "arc9_specter",
+			ammo = { start = 15, cost = 390, bullets = 15 }, // 390 --> 465
+			buyCost = 315
+		},
+		{
+			class = "arc9_woodshotgun",
+			ammo = { start = 2, cost = 480, bullets = 2 },
+			buyCost = 400
+		},
+		{
+			class = "arc9_assaultrifle",
+			ammo = { start = 10, cost = 380, bullets = 10 },
+			buyCost = 300
+		},
+		{
+			class = "arc9_militarysniper",
+			ammo = { start = 4, cost = 480, bullets = 4 },
+			buyCost = 400
+		},
+		{
+			class = "arc9_diablo",
+			ammo = { start = 3, cost = 315, bullets = 3 },
+			buyCost = 270
+		},
 	}
 }
 
@@ -45,6 +106,10 @@ PART_REWARDS = {
         amount = 100,
         message = "Downed Enemy"
     },
+	ASSIST = {
+		amount = 50,
+		message = "Assist"
+	},
     LONG_RANGE_KILL = {
         amount = 30,
         message = "Long Range Kill"
@@ -65,6 +130,14 @@ PART_REWARDS = {
         amount = 15,
         message = "Marked Target"
     },
+	CRAFT_ITEM = {
+		amount = 30,
+		message = "Craft Item"
+	},
+	MARKED_TARGET_DOWNED = {
+		amount = 25,
+		message = "Marked Target Downed"
+	},
     RAMPAGE = {
         amount = 50,
         message = "Rampage"
