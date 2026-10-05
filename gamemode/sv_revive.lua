@@ -22,6 +22,10 @@ hook.Add("PlayerHurt", "HSR_ph", function(ply, atkr, hp, dmg)
 	if not ply:GetNWBool("downed") and hp <= 0  then 
 		if IsValid(atkr) and atkr:IsPlayer() and atkr ~= ply and atkr:Team() ~= ply:Team() then
 			atkr:AddParts(100)
+
+			if atkr:GetPos():DistToSqr(ply:GetPos()) >= 1000 ^ 2 then
+				atkr:AddParts(30)
+			end
 		end
 
 		ply:SetHealth(ply:GetMaxHealth())
