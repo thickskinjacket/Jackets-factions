@@ -81,7 +81,12 @@ function WaitForPlayers()
 end
 
 local function AssignTeams(players)
-    for i, ply in player.Iterator() do
+    for i = #players, 2, -1 do
+        local randomIndex = math.random(i)
+        players[i], players[randomIndex] = players[randomIndex], players[i]
+    end
+
+    for i, ply in ipairs(players) do
         ply:SetTeam(i % 2 == 0 and TEAM_FIREFLIES or TEAM_HUNTERS)
     end
 end
