@@ -188,6 +188,10 @@ hook.Add("Think", "HSR_reviving", function()
 			local elapsedTime = CurTime() - rag:GetNWFloat("reviveStartTime") 
 
 			if elapsedTime >= revive_time then 
+				if savior:Team() == ply:Team() then
+					savior:AddParts(100)
+				end
+
 				HSR.revivePlayer(ply)
 
 				HSR.downedPlayers[ply] = nil
