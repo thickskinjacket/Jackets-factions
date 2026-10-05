@@ -75,6 +75,10 @@ hook.Add("Think", "HSR_bleed_out", function()
 	for ply, rag in pairs(HSR.downedPlayers) do
 		if not ply:GetNWBool("downed") or not IsValid(rag) or not IsValid(ply) then continue end
 
+		if ply:Flashlight() then
+			ply:Flashlight(false)
+		end
+
 		local savior = rag:GetNWEntity("savior")
 		local startBleedOutTime = rag:GetNWFloat("bleedOutStartTime")
 
@@ -107,6 +111,12 @@ hook.Add("Think", "HSR_bleed_out", function()
 
 		    ply:TakeDamageInfo(dmg)
 		end
+	end
+end)
+
+hook.Add("PlayerSwitchFlashlight", "HSR_block_downed_flashlight", function(ply, enabled)
+	if enabled and ply:GetNWBool("downed") then
+		return false
 	end
 end)
 
