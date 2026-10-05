@@ -31,7 +31,7 @@ resource.AddFile("materials/hud/man.png")
 CreateConVar("jf_round_preparation_time", "2", {FCVAR_ARCHIVE, FCVAR_NOTIFY})
 CreateConVar("jf_round_time", "300", {FCVAR_ARCHIVE, FCVAR_NOTIFY})
 CreateConVar("jf_round_post_time", "2", {FCVAR_ARCHIVE, FCVAR_NOTIFY})
-CreateConVar("jf_respawn_time", "5", {FCVAR_ARCHIVE, FCVAR_NOTIFY})
+CreateConVar("jf_respawn_time", "20", {FCVAR_ARCHIVE, FCVAR_NOTIFY})
 CreateConVar("jf_team_lives", "20", {FCVAR_ARCHIVE, FCVAR_NOTIFY})
 
 util.AddNetworkString("JF_NotifyRoundState")
@@ -90,9 +90,18 @@ function GM:GiveRoundLoadout(ply)
     local function SetStartingAmmo(weapon, weaponConfig)
         if not IsValid(weapon) then return end
 
+        local startingAmmo = weaponConfig.ammo.start
+        local clipSize = math.max(weapon:GetMaxClip1(), 0)
+        local magazineAmmo = math.min(startingAmmo, clipSize)
+        local reserveAmmo = startingAmmo - magazineAmmo
+
+        if clipSize > 0 then
+            weapon:SetClip1(magazineAmmo)
+        end
+
         local ammoType = weapon:GetPrimaryAmmoType()
         if ammoType >= 0 then
-            ply:SetAmmo(weaponConfig.ammo.start, ammoType)
+            ply:SetAmmo(reserveAmmo, ammoType)
         end
     end
 
