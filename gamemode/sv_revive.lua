@@ -265,7 +265,10 @@ end)
 
 hook.Add("PlayerSpawn", "HSR_ps", function(ply, _)
 	local downed_ragdoll = ply:GetNWEntity("downed_ragdoll")
-	
+
+	ply:SetNWBool("downed", false)
+	HSR.downedPlayers[ply] = nil
+
 	if not IsValid(downed_ragdoll) then return end
 
 	ply:UnSpectate()
