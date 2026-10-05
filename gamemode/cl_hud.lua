@@ -22,6 +22,19 @@ local GHOST_CIRCLE_CACHE = {}
 local GHOST_PIE_CACHE = {}
 local BG_CIRCLE_CACHE = {}
 local BG_PIE_CACHE = {}
+local HUD_BACKGROUND_COLOR = Color(0, 0, 0, 255 * .75)
+local HUD_OUTLINE_COLOR = Color(0, 0, 0, 220)
+local HUD_ACTIVE_COLOR = Color(255, 255, 255, 255)
+local HUD_INACTIVE_COLOR = Color(140, 140, 140, 255)
+local HUD_SECONDARY_TEXT_COLOR = Color(180, 180, 180, 255)
+local HUD_HEALTH_GHOST_COLOR = Color(140, 28, 26, 255)
+local HUD_PARTS_COLOR = Color(127, 174, 149)
+local HUD_ENEMY_NAME_COLOR = Color(166, 49, 49, 255)
+local ENEMY_NAME_TAG_RANGE = 1000
+local ENEMY_NAME_TAG_FOV = math.cos(math.rad(30))
+local enemyNameTagAlpha = {}
+local ENEMY_NAME_TAG_FADE_IN_SPEED = 6
+local ENEMY_NAME_TAG_FADE_OUT_SPEED = 2
 
 function draw.JCircle(PositionX, PositionY, Radius, CachedCircle)
     for i = 1, 361 do
@@ -73,9 +86,6 @@ function draw.JRing(PositionX, PositionY, Radius, Thickness, StartAng, EndAng, C
     render.SetStencilEnable(false)
 end
 
-local bgColor = Color(0, 0, 0, 255 * .75)
-local bgSecondaryColor = Color(140, 140, 140, 255)
-
 local function DrawHUDBackground(x, y, radius, thickness, circleCache, pieCache, scale)
     local bgBoxW = 200 * scale
     local bgBoxH = 60 * scale
@@ -87,15 +97,15 @@ local function DrawHUDBackground(x, y, radius, thickness, circleCache, pieCache,
     render.SetStencilReferenceValue(1)
     render.SetStencilCompareFunction(STENCIL_ALWAYS)
     render.SetStencilPassOperation(STENCIL_REPLACE)
-        surface.SetDrawColor(bgColor)
+        surface.SetDrawColor(HUD_BACKGROUND_COLOR)
         surface.DrawPoly(draw.JCircle(x, y, radius, circleCache))
     render.SetStencilCompareFunction(STENCIL_NOTEQUAL)
     render.SetStencilPassOperation(STENCIL_KEEP)
-        surface.SetDrawColor(bgColor)
+        surface.SetDrawColor(HUD_BACKGROUND_COLOR)
         surface.DrawRect(x - bgBoxW, y - (bgBoxH / 2), bgBoxW, bgBoxH)
     render.SetStencilEnable(false)
 
-    surface.SetDrawColor(bgSecondaryColor)
+    surface.SetDrawColor(HUD_INACTIVE_COLOR)
     draw.JRing(x, y, radius, thickness, 0, -198, circleCache, pieCache, -115)
 end
 
@@ -132,8 +142,8 @@ local function DrawAmmoDisplay(x, y, offset, ply, scale)
     for i = 0, clipCountLimit - 1 do
         local posX = clipCountX + (i * -gap)
 
-        if i < clip then surface.SetDrawColor(255, 255, 255, 255)
-        else surface.SetDrawColor(bgSecondaryColor) end
+        if i < clip then surface.SetDrawColor(HUD_ACTIVE_COLOR)
+        else surface.SetDrawColor(HUD_INACTIVE_COLOR) end
 
         surface.DrawRect(posX, clipCountY, clipCountW, clipCountH)
     end
@@ -142,7 +152,7 @@ local function DrawAmmoDisplay(x, y, offset, ply, scale)
     local countReserveW, countReserveH = surface.GetTextSize(ammoCountReserveDisplayText)
 
     draw.SimpleText(ammoCountDisplayText, "TLOU_Font_Ammo_Big", ammoX - countReserveW, ammoY, color_white, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
-    draw.SimpleText(ammoCountReserveDisplayText, "TLOU_Font_Ammo_Small", ammoX, ammoY, Color(180, 180, 180, 255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
+    draw.SimpleText(ammoCountReserveDisplayText, "TLOU_Font_Ammo_Small", ammoX, ammoY, HUD_SECONDARY_TEXT_COLOR, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
 end
 
 local function GetSegmentFill(segmentIndex, currentHP, maxHP, segments)
@@ -165,7 +175,7 @@ local function DrawHealthRing(x, y, radius, thickness, hp, maxHP)
 
         if segment > 0 then
             local fillEndAng = startAng + ((anglePerSegment - gap) * segment)
-            surface.SetDrawColor(255, 255, 255, 255)
+            surface.SetDrawColor(HUD_ACTIVE_COLOR)
             draw.JRing(x, y, radius, thickness, -startAng, -fillEndAng, HP_CIRCLE_CACHE, HP_PIE_CACHE, -115)
         end
     end
@@ -181,7 +191,6 @@ local ringConfig = {
 }
 
 local function DrawPartsDisplay(ply, scale)
-    local partsColor = Color(127, 174, 149)
     local partsX = 64 * scale
     local partsY = ScrH() - (64 * scale) 
 
@@ -192,7 +201,7 @@ local function DrawPartsDisplay(ply, scale)
             partsX,
             partsY
         },
-        color = partsColor,
+        color = HUD_PARTS_COLOR,
         xalign = TEXT_ALIGN_LEFT,
         yalign = TEXT_ALIGN_BOTTOM
     }, 1, 200)
@@ -248,7 +257,7 @@ hook.Add("HUDPaint", "jacketsfactions_hud", function()
         local startAng = math.Clamp((hp / hpMax) * 200, 0, 200)
         local endAng = math.Clamp((hpLossGhost / hpMax) * 200, 0, 200)
         
-        surface.SetDrawColor(140, 28, 26, 255)
+        surface.SetDrawColor(HUD_HEALTH_GHOST_COLOR)
         draw.JRing(ringX, ringY, ringRadius, ringThickness, -startAng, -endAng, GHOST_CIRCLE_CACHE, GHOST_PIE_CACHE, -115)
     end
 
@@ -319,7 +328,88 @@ hook.Add("HUDPaint", "jacketsfactions_teammate_names", function()
             TEXT_ALIGN_CENTER,
             TEXT_ALIGN_CENTER,
             1,
-            Color(0, 0, 0, 220)
+            HUD_OUTLINE_COLOR
         )
+    end
+end)
+
+hook.Add("HUDPaint", "jacketsfactions_enemy_names", function()
+    local ply = LocalPlayer()
+    if not IsValid(ply) then return end
+
+    local eyePosition = ply:EyePos()
+    local eyeForward = ply:EyeAngles():Forward()
+    local rangeSquared = ENEMY_NAME_TAG_RANGE ^ 2
+    local visibleEnemies = {}
+
+    for _, otherPly in player.Iterator() do
+        if not IsValid(otherPly) or otherPly == ply or otherPly:Team() == ply:Team() or otherPly:Team() <= 0 then
+            continue
+        end
+
+        local isVisible = otherPly:Alive() and not otherPly:GetNWBool("downed")
+        local tagPosition
+
+        if isVisible then
+            local targetCenter = otherPly:WorldSpaceCenter()
+            local toTarget = targetCenter - eyePosition
+            isVisible = toTarget:LengthSqr() <= rangeSquared
+
+            if isVisible then
+                toTarget:Normalize()
+                isVisible = eyeForward:Dot(toTarget) >= ENEMY_NAME_TAG_FOV
+            end
+
+            if isVisible then
+                local trace = util.TraceLine({
+                    start = eyePosition,
+                    endpos = targetCenter,
+                    filter = ply,
+                    mask = MASK_VISIBLE
+                })
+                isVisible = not trace.Hit or trace.Entity == otherPly
+            end
+
+            if isVisible then
+                tagPosition = otherPly:GetPos() + Vector(0, 0, otherPly:OBBMaxs().z + 6)
+                isVisible = tagPosition:ToScreen().visible
+            end
+        end
+
+        local currentAlpha = enemyNameTagAlpha[otherPly] or 0
+        if isVisible then
+            currentAlpha = math.min(1, currentAlpha + FrameTime() * ENEMY_NAME_TAG_FADE_IN_SPEED)
+            visibleEnemies[otherPly] = true
+        else
+            currentAlpha = math.max(0, currentAlpha - FrameTime() * ENEMY_NAME_TAG_FADE_OUT_SPEED)
+        end
+        enemyNameTagAlpha[otherPly] = currentAlpha
+
+        if currentAlpha > 0 then
+            tagPosition = tagPosition or otherPly:GetPos() + Vector(0, 0, otherPly:OBBMaxs().z + 6)
+            local screenPosition = tagPosition:ToScreen()
+            local nameColor = Color(HUD_ENEMY_NAME_COLOR.r, HUD_ENEMY_NAME_COLOR.g, HUD_ENEMY_NAME_COLOR.b, currentAlpha * 255)
+            local outlineColor = Color(HUD_OUTLINE_COLOR.r, HUD_OUTLINE_COLOR.g, HUD_OUTLINE_COLOR.b, currentAlpha * HUD_OUTLINE_COLOR.a)
+
+            draw.SimpleTextOutlined(
+                otherPly:Nick(),
+                "jf_teammate_name",
+                screenPosition.x,
+                screenPosition.y,
+                nameColor,
+                TEXT_ALIGN_CENTER,
+                TEXT_ALIGN_CENTER,
+                1,
+                outlineColor
+            )
+        end
+    end
+
+    for otherPly in pairs(enemyNameTagAlpha) do
+        if not IsValid(otherPly) then
+            enemyNameTagAlpha[otherPly] = nil
+        elseif not visibleEnemies[otherPly] and enemyNameTagAlpha[otherPly] <= 0 then
+            enemyNameTagAlpha[otherPly] = nil
+        end
     end
 end)
