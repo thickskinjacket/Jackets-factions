@@ -26,11 +26,12 @@ resource.AddFile("materials/hud/small-health.png")
 resource.AddFile("materials/hud/up-arrow2.png")
 resource.AddFile("materials/hud/man.png")
 
-CreateConVar("jf_round_preparation_time", "2", FCVAR_NOTIFY)
-CreateConVar("jf_round_time", "300", FCVAR_NOTIFY)
-CreateConVar("jf_round_post_time", "2", FCVAR_NOTIFY)
-CreateConVar("jf_respawn_time", "5", FCVAR_NOTIFY)
-CreateConVar("jf_team_lives", "4", FCVAR_NOTIFY)
+
+CreateConVar("jf_round_preparation_time", "2", {FCVAR_ARCHIVE, FCVAR_NOTIFY})
+CreateConVar("jf_round_time", "300", {FCVAR_ARCHIVE, FCVAR_NOTIFY})
+CreateConVar("jf_round_post_time", "2", {FCVAR_ARCHIVE, FCVAR_NOTIFY})
+CreateConVar("jf_respawn_time", "5", {FCVAR_ARCHIVE, FCVAR_NOTIFY})
+CreateConVar("jf_team_lives", "20", {FCVAR_ARCHIVE, FCVAR_NOTIFY})
 
 util.AddNetworkString("JF_NotifyRoundState")
 util.AddNetworkString("JF_SendRadarPosition")
