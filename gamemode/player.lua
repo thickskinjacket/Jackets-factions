@@ -2,16 +2,6 @@ function GM:PlayerDeathThink(ply)
     local roundState = GetRoundState()
 
     if roundState == ROUND_ACTIVE then
-        if ply.NextRespawnTime and CurTime() >= ply.NextRespawnTime then
-            ply:Spawn()
-            ply.NextRespawnTime = nil
-
-            local plyTeam = ply:Team()
-            SetGlobalInt("jf_teamlives_" .. plyTeam, GAMEMODE.TeamLives[plyTeam])
-
-            return true
-        end
-
         return false
     end
 
@@ -28,9 +18,9 @@ function GM:PlayerDeath(ply, attacker, dmginfo)
 
         if GAMEMODE.TeamLives[plyTeam] > 0 then
             GAMEMODE.TeamLives[plyTeam] = GAMEMODE.TeamLives[plyTeam] - 1
-            ply.NextRespawnTime = CurTime() + GetConVar("jf_respawn_time"):GetInt()
+            ply.NextRespawnWave = true
         else
-            ply.NextRespawnTime = nil
+            ply.NextRespawnWave = nil
         end
 
         StartWinCheck()

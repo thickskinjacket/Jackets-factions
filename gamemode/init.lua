@@ -103,13 +103,27 @@ local function ResetTeamLives()
     SetGlobalInt("jf_teamlives_" .. TEAM_HUNTERS, GAMEMODE.TeamLives[TEAM_HUNTERS])
 end
 
+local function SpawnRespawnWave()
+    if GetRoundState() ~= ROUND_ACTIVE then return end
+
+    for _, ply in player.Iterator() do
+        if not IsValid(ply) or ply:Alive() or ply.NextRespawnWave ~= true then continue end
+
+        ply:Spawn()
+        ply.NextRespawnWave = nil
+
+        local plyTeam = ply:Team()
+        SetGlobalInt("jf_teamlives_" .. plyTeam, GAMEMODE.TeamLives[plyTeam])
+    end
+end
+
 function StartWinCheck()
     local firefliesAlive = GAMEMODE.TeamLives[TEAM_FIREFLIES] > 0
     local huntersAlive = GAMEMODE.TeamLives[TEAM_HUNTERS] > 0
 
     for _, ply in player.Iterator() do
         if IsValid(ply) then
-            local isPlaying = ply:Alive() or (ply.NextRespawnTime ~= nil)
+            local isPlaying = ply:Alive() or ply.NextRespawnWave == true
 
             if isPlaying then
                 if ply:Team() == TEAM_FIREFLIES then
@@ -132,6 +146,7 @@ end
 
 function PrepareRound()
     SetRoundState(ROUND_STARTING)
+    timer.Remove("jf_respawn_wave")
 
     print("Preparing round...")
     local roundTime = GetConVar("jf_round_time"):GetInt()
@@ -150,6 +165,7 @@ function PrepareRound()
     AssignTeams(players)
 
     for _, ply in ipairs(players) do
+        ply.NextRespawnWave = nil
         ply:Spawn()
     end
 
@@ -167,6 +183,9 @@ function StartRound()
     print("Round started! Duration: " .. roundTime .. " seconds.")
     SetRoundEnd(CurTime() + roundTime)
 
+    local respawnTime = math.max(GetConVar("jf_respawn_time"):GetFloat(), 1)
+    timer.Create("jf_respawn_wave", respawnTime, 0, SpawnRespawnWave)
+
     timer.Create("jf_round_timer", roundTime, 1, function()
         EndRound()
     end)
@@ -174,6 +193,7 @@ end
 
 function EndRound()
     SetRoundState(ROUND_OVER)
+    timer.Remove("jf_respawn_wave")
 
     print("Round over.")
 
