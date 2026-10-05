@@ -119,6 +119,11 @@ local function DrawRadarRoundTime(radarX, radarY, radarRadius, scale)
     local minutes = math.floor(totalSeconds / 60)
     local seconds = totalSeconds % 60
     local timeText = string.format("%d:%02d", minutes, seconds)
+    local timerColor = color_white
+    if remainingTime < 30 then
+        local pulse = (math.sin(CurTime() * math.pi * 2) + 1) / 2
+        timerColor = Color(255, Lerp(pulse, 255, 0), Lerp(pulse, 255, 0))
+    end
 
     draw.TextShadow({
         text = timeText,
@@ -127,7 +132,7 @@ local function DrawRadarRoundTime(radarX, radarY, radarRadius, scale)
             radarX,
             radarY - radarRadius - (5 * scale)
         },
-        color = color_white,
+        color = timerColor,
         xalign = TEXT_ALIGN_CENTER,
         yalign = TEXT_ALIGN_BOTTOM
     }, 1, 200)
