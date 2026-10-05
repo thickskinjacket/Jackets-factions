@@ -56,9 +56,6 @@ hook.Add("HUDPaintBackground", "downed_bleed_out_hud", function()
 
 	if not ply:GetNWBool("downed") or not IsValid(ply) or not IsValid(rag) or not ply:Alive() then return end
 
-    local bleed_out_time = GetConVar("jf_bleedout_time"):GetInt()
-    local revive_time = GetConVar("jf_revive_time"):GetInt()
-
     local scale = ScrW() / 1600
     local savior = rag:GetNWEntity("savior")
     local isBeingRevived = IsValid(savior)
@@ -67,12 +64,12 @@ hook.Add("HUDPaintBackground", "downed_bleed_out_hud", function()
     -- Bleed out
     local startBleedOutTime = rag:GetNWFloat("bleedOutStartTime", 0)
     local elapsedBleedOut = CurTime() - startBleedOutTime
-    local fractionBleedOut = 1 - math.Clamp(elapsedBleedOut / bleed_out_time, 0, 1)
+    local fractionBleedOut = 1 - math.Clamp(elapsedBleedOut / GAMEMODE.BleedOutTime, 0, 1)
 
     -- Revive
     local startReviveTime = rag:GetNWFloat("reviveStartTime", 0)
     local elapsedRevive = CurTime() - startReviveTime
-    local fractionRevive = math.Clamp(elapsedRevive / revive_time, 0, 1)
+    local fractionRevive = math.Clamp(elapsedRevive / GAMEMODE.ReviveTime, 0, 1)
 
     // Text properties
     surface.SetFont("textFont")
@@ -109,8 +106,6 @@ end)
 hook.Add("PostDrawOpaqueRenderables", "draw_downed_players_icons", function()
     if table.IsEmpty(downedPlayers) then return end
 
-    local bleed_out_time = GetConVar("jf_bleedout_time"):GetInt()
-    local revive_time = GetConVar("jf_revive_time"):GetInt()
     local lp = LocalPlayer()
     local eyepos = EyePos()
 
@@ -145,11 +140,11 @@ hook.Add("PostDrawOpaqueRenderables", "draw_downed_players_icons", function()
         else
             elapsedBleedOut = CurTime() - startBleedOutTime
         end    
-        local fractionBleedOut = 1 - math.Clamp(elapsedBleedOut / bleed_out_time, 0, 1)
+        local fractionBleedOut = 1 - math.Clamp(elapsedBleedOut / GAMEMODE.BleedOutTime, 0, 1)
 
         local startReviveTime = rag:GetNWFloat("reviveStartTime", 0)
         local elapsedRevive = CurTime() - startReviveTime
-        local fractionRevive = math.Clamp(elapsedRevive / revive_time, 0, 1)
+        local fractionRevive = math.Clamp(elapsedRevive / GAMEMODE.ReviveTime, 0, 1)
         
         cam.IgnoreZ(true)
         cam.Start3D2D(pos, ang, math.max(240, math.sqrt(distance)) / 2400)

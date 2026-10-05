@@ -1,17 +1,6 @@
 HSR = {}
 HSR.downedPlayers = {}
 
-local function createReviveConVar(name, default, description)
-    if SERVER then
-        return CreateConVar(name, default, { FCVAR_REPLICATED, FCVAR_ARCHIVE }, description)
-    end
-
-    return CreateClientConVar(name, default, true, false, description)
-end
-
-createReviveConVar("jf_bleedout_time", "30", "How long the ragdoll will bleed out for")
-createReviveConVar("jf_revive_time", "4", "How long it takes to revive someone")
-
 HSR.boneToHitGroup = { 
     ["ValveBiped.Bip01_Head1"] = 1,
     ["ValveBiped.Bip01_R_UpperArm"] = 5,

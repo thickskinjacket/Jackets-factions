@@ -75,8 +75,6 @@ hook.Add("Think", "HSR_bleed_out", function()
 	for ply, rag in pairs(HSR.downedPlayers) do
 		if not ply:GetNWBool("downed") or not IsValid(rag) or not IsValid(ply) then continue end
 
-		local bleed_out_time = GetConVar("jf_bleedout_time"):GetInt()
-
 		local savior = rag:GetNWEntity("savior")
 		local startBleedOutTime = rag:GetNWFloat("bleedOutStartTime")
 
@@ -97,7 +95,7 @@ hook.Add("Think", "HSR_bleed_out", function()
 		
 		if rag.pauseBleedOutTime then continue end
 
-		if elapsedTime >= bleed_out_time then
+		if elapsedTime >= GAMEMODE.BleedOutTime then
 			local attacker = IsValid(rag.attacker) and rag.attacker or ply
 			local inflictor = IsValid(rag.attackerWeapon) and rag.attackerWeapon or attacker
 
@@ -188,10 +186,9 @@ hook.Add("Think", "HSR_reviving", function()
 				rag:SetNWFloat("reviveStartTime", CurTime())
 			end
 
-			local revive_time = GetConVar("jf_revive_time"):GetInt()
 			local elapsedTime = CurTime() - rag:GetNWFloat("reviveStartTime") 
 
-			if elapsedTime >= revive_time then 
+			if elapsedTime >= GAMEMODE.ReviveTime then
 				if savior:Team() == ply:Team() then
 					savior:AddParts(PART_REWARDS.REVIVE)
 				end

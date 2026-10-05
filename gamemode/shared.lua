@@ -3,6 +3,9 @@ GM.Author = "thickskinjacket"
 
 DeriveGamemode("sandbox")
 
+GAMEMODE.BleedOutTime = 20
+GAMEMODE.ReviveTime = 5
+
 include("sh_revive.lua")
 
 ROUND_WAITING = 0
