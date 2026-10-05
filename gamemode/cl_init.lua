@@ -2,6 +2,7 @@ include("shared.lua")
 include("cl_fonts.lua")
 include("cl_hud.lua")
 include("cl_revive.lua")
+include("cl_radar.lua")
 
 CreateConVar("jf_spectator", "0", FCVAR_ARCHIVE)
 

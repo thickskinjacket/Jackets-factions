@@ -11,6 +11,7 @@ AddCSLuaFile("cl_hud.lua")
 AddCSLuaFile("cl_revive.lua")
 AddCSLuaFile("cl_fonts.lua")
 AddCSLuaFile("sh_revive.lua")
+AddCSLuaFile("cl_radar.lua")
 
 resource.AddFile("materials/resource/fonts/D-DIN.ttf")
 resource.AddFile("materials/resource/fonts/D-DIN-Bold.ttf")
