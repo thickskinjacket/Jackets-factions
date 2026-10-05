@@ -21,10 +21,10 @@ end
 hook.Add("PlayerHurt", "HSR_ph", function(ply, atkr, hp, dmg)
 	if not ply:GetNWBool("downed") and hp <= 0  then 
 		if IsValid(atkr) and atkr:IsPlayer() and atkr ~= ply and atkr:Team() ~= ply:Team() then
-			atkr:AddParts(100)
+			atkr:AddParts(PART_REWARDS.DOWN)
 
 			if atkr:GetPos():DistToSqr(ply:GetPos()) >= 1000 ^ 2 then
-				atkr:AddParts(30)
+				atkr:AddParts(PART_REWARDS.LONG_RANGE_KILL)
 			end
 		end
 
@@ -193,7 +193,7 @@ hook.Add("Think", "HSR_reviving", function()
 
 			if elapsedTime >= revive_time then 
 				if savior:Team() == ply:Team() then
-					savior:AddParts(100)
+					savior:AddParts(PART_REWARDS.REVIVE)
 				end
 
 				HSR.revivePlayer(ply)
@@ -255,7 +255,7 @@ hook.Add("PlayerDeath", "HSR_pd", function(ply, _, atkr)
 	if not IsValid(downed_ragdoll) then return end
 
 	if IsValid(atkr) and atkr:IsPlayer() and atkr ~= ply and atkr:Team() ~= ply:Team() then
-		atkr:AddParts(50)
+		atkr:AddParts(PART_REWARDS.EXECUTION)
 	end
 
 	ply:SetNWBool("downed", false)

@@ -1,5 +1,24 @@
 local meta = FindMetaTable("Player")
 
+PART_REWARDS = {
+    DOWN = {
+        amount = 100,
+        message = "Downed Enemy"
+    },
+    LONG_RANGE_KILL = {
+        amount = 30,
+        message = "Long Range Kill"
+    },
+    EXECUTION = {
+        amount = 50,
+        message = "Execution"
+    },
+    REVIVE = {
+        amount = 100,
+        message = "Revive"
+    }
+}
+
 function meta:SetParts(amount)
     self:SetNWInt("jf_parts", math.max(0, math.floor(amount)))
 end
@@ -8,11 +27,10 @@ function meta:GetParts()
     return self:GetNWInt("jf_parts", 0)
 end
 
-function meta:AddParts(amount)
-    amount = math.floor(amount)
-    if amount < 0 then return false end
+function meta:AddParts(reward)
+    if not reward or not isnumber(reward.amount) or reward.amount < 0 then return false end
 
-    self:SetParts(self:GetParts() + amount)
+    self:SetParts(self:GetParts() + math.floor(reward.amount))
     return true
 end
 
