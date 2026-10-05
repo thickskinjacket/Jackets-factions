@@ -204,7 +204,7 @@ local function DrawRadarTeamPlayers(ply, radarX, radarY, radarRadius, scale)
     end
 
     local iconSize = 40 * scale
-    local iconGap = -10 * scale
+    local iconGap = -15 * scale
     local teamGap = 0 * scale
     local ownWidth = math.max(0, #ownPlayers * iconSize + (#ownPlayers - 1) * iconGap)
     local enemyWidth = math.max(0, #enemyPlayers * iconSize + (#enemyPlayers - 1) * iconGap)
