@@ -23,6 +23,11 @@ function createFonts(scale)
         size = 36 * scale,
         weight = 500,
     })
+    surface.CreateFont("jf_parts_counter", {
+        font = "D-DIN",
+        size = 36 * scale,
+        weight = 600,
+    })
     surface.CreateFont("jf_radar_lives", {
         font = "D-DIN",
         size = 32 * scale,

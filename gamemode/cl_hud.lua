@@ -180,6 +180,24 @@ local ringConfig = {
     thickness = 7 
 }
 
+local function DrawPartsDisplay(ply, scale)
+    local partsColor = Color(127, 174, 149)
+    local partsX = 64 * scale
+    local partsY = ScrH() - (64 * scale) 
+
+    draw.TextShadow({
+        text = ply:GetNWInt("jf_parts", 0),
+        font = "jf_parts_counter",
+        pos = {
+            partsX,
+            partsY
+        },
+        color = partsColor,
+        xalign = TEXT_ALIGN_LEFT,
+        yalign = TEXT_ALIGN_BOTTOM
+    }, 1, 200)
+end
+
 local plyStartHP, plyOldHP, plyNewHP = 0, -1, -1
 
 hook.Add("HUDPaint", "jacketsfactions_hud", function()
@@ -187,6 +205,8 @@ hook.Add("HUDPaint", "jacketsfactions_hud", function()
 
     local ply = LocalPlayer()
     if not IsValid(ply) or not ply:Alive() then return end
+
+    DrawPartsDisplay(ply, scale)
 
     local hp = ply:Health()
     local hpMax = ply:GetMaxHealth()
