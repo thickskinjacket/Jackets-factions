@@ -13,6 +13,33 @@ ROUND_OVER = 3
 TEAM_FIREFLIES = 1
 TEAM_HUNTERS = 2
 
+GAMEMODE.WEAPON_POOLS = {
+	LONG_GUN = {
+		"arc9_burstrifle",
+		"arc9_frontier",
+		"arc9_huntingrifle",
+		"arc9_semiauto",
+		"arc9_fullautorifle",
+		"arc9_tacshotgun",
+		"arc9_variablerifle",
+	},
+	SIDE_ARM = {
+		"arc9_9mm",
+		"arc9_burstpistol",
+		"arc9_enforcer",
+		"arc9_revolver",
+		"arc9_shorty",
+	},
+	BUYABLE_GUNS = {
+		"arc9_dbarrel",
+		"arc9_specter",
+		"arc9_woodshotgun",
+		"arc9_assaultrifle",
+		"arc9_militarysniper",
+		"arc9_diablo",
+	}
+}
+
 PART_REWARDS = {
     DOWN = {
         amount = 100,

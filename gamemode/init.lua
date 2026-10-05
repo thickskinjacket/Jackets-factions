@@ -57,6 +57,41 @@ function GM:PlayerSpawn(ply)
 
     ply.JFTeamModel = model
     ply:SetModel(model)
+
+    timer.Simple(0, function()
+        if IsValid(ply) and ply:Alive() then
+            self:GiveRoundLoadout(ply)
+        end
+    end)
+end
+
+function GM:GiveRoundLoadout(ply)
+    local loadout = ply.JFRoundLoadout
+    if not loadout then return end
+
+    ply:StripWeapons()
+
+    local longGun = ply:Give(loadout.longGun, true)
+    local sideArm = ply:Give(loadout.sideArm, true)
+
+    if not IsValid(longGun) then
+        ErrorNoHalt(string.format("[Garrys Factions] Failed to give long gun '%s' to %s\n", loadout.longGun, ply:Nick()))
+    end
+
+    if not IsValid(sideArm) then
+        ErrorNoHalt(string.format("[Garrys Factions] Failed to give sidearm '%s' to %s\n", loadout.sideArm, ply:Nick()))
+    end
+
+    if IsValid(longGun) then
+        ply:SelectWeapon(longGun:GetClass())
+    elseif IsValid(sideArm) then
+        ply:SelectWeapon(sideArm:GetClass())
+    end
+end
+
+function GM:PlayerLoadout(ply)
+    self:GiveRoundLoadout(ply)
+    return false
 end
 
 function GM:Initialize()
@@ -115,6 +150,18 @@ local function AssignTeams(players)
         local plyTeam = i % 2 == 0 and TEAM_FIREFLIES or TEAM_HUNTERS
         ply:SetTeam(plyTeam)
         ply.JFTeamModel = GetRandomTeamModel(ply)
+    end
+end
+
+local function AssignRoundWeapons(players)
+    local longGuns = GAMEMODE.WEAPON_POOLS.LONG_GUN
+    local sideArms = GAMEMODE.WEAPON_POOLS.SIDE_ARM
+
+    for _, ply in ipairs(players) do
+        ply.JFRoundLoadout = {
+            longGun = longGuns[math.random(#longGuns)],
+            sideArm = sideArms[math.random(#sideArms)]
+        }
     end
 end
 
@@ -188,6 +235,7 @@ function PrepareRound()
     end
 
     AssignTeams(players)
+    AssignRoundWeapons(players)
 
     for _, ply in ipairs(players) do
         ply.NextRespawnWave = nil
