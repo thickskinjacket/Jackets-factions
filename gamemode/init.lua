@@ -3,6 +3,7 @@ include("player.lua")
 include("player_ext.lua")
 include("player_ext_shared.lua")
 include("sv_workshop.lua")
+include("sv_tfa_overrides.lua")
 include("sv_revive.lua")
 include("sv_radar.lua")
 
@@ -78,11 +79,11 @@ function GM:GiveRoundLoadout(ply)
     local sideArm = ply:Give(loadout.sideArm.class, true)
 
     if not IsValid(longGun) then
-        ErrorNoHalt(string.format("[Garrys Factions] Failed to give long gun '%s' to %s\n", loadout.longGun.class, ply:Nick()))
+        ErrorNoHalt(string.format("[Jacket's Factions] Failed to give long gun '%s' to %s\n", loadout.longGun.class, ply:Nick()))
     end
 
     if not IsValid(sideArm) then
-        ErrorNoHalt(string.format("[Garrys Factions] Failed to give sidearm '%s' to %s\n", loadout.sideArm.class, ply:Nick()))
+        ErrorNoHalt(string.format("[Jacket's Factions] Failed to give sidearm '%s' to %s\n", loadout.sideArm.class, ply:Nick()))
     end
 
     local function SetStartingAmmo(weapon, weaponConfig)
