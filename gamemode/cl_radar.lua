@@ -93,7 +93,7 @@ net.Receive("JF_MarkEnemy", function()
     })
 end)
 
-local function DrawRadarBlip(x, y, color, scale, isDowned)
+local function DrawRadarBlip(x, y, color, scale, isDowned, isPlayerIcon, facingAngle)
     if isDowned then
         local iconSize = radarConfig.blipRadius * 2.5 * scale
         local pulse = (math.sin(CurTime() * 6) + 1) / 2
@@ -106,6 +106,16 @@ local function DrawRadarBlip(x, y, color, scale, isDowned)
         surface.SetDrawColor(iconColor)
         surface.SetMaterial(radarHealthIcon)
         surface.DrawTexturedRect(x - (iconSize / 2), y - (iconSize / 2), iconSize, iconSize)
+        return
+    end
+
+    if isPlayerIcon then
+        local iconWidth = radarConfig.blipRadius * 1.7 * scale
+        local iconHeight = radarConfig.blipRadius * 2.3 * scale
+
+        surface.SetDrawColor(color)
+        surface.SetMaterial(radarPlayerIcon)
+        surface.DrawTexturedRectRotated(x, y, iconWidth, iconHeight, facingAngle or 0)
         return
     end
 
@@ -281,7 +291,7 @@ local function DrawRadarTeamPlayers(ply, radarX, radarY, radarRadius, scale)
     surface.SetMaterial(radarCircleMaterial)
 end
 
-hook.Add("HUDPaint", "garrysfactions_radar", function()
+hook.Add("HUDPaint", "jacketsfactions_radar", function()
     local scale = ScrH() / 1080
 
     local ply = LocalPlayer()
@@ -388,6 +398,15 @@ hook.Add("HUDPaint", "garrysfactions_radar", function()
             end
         end
 
-        DrawRadarBlip(blipX, blipY, playerColor, teammateScale, teammate:GetNWBool("downed"))
+        local facingAngle = teammate:EyeAngles().y - ply:EyeAngles().y
+        DrawRadarBlip(
+            blipX,
+            blipY,
+            playerColor,
+            teammateScale,
+            teammate:GetNWBool("downed"),
+            true,
+            facingAngle
+        )
     end
 end)

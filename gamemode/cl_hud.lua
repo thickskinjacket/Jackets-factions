@@ -395,6 +395,11 @@ hook.Add("HUDPaint", "JF_enemy_names", function()
 
         local markAlpha = JF_GetEnemyMarkAlpha(otherPly)
         local isMarked = markAlpha > 0
+        if not IsValid(target) then
+            enemyNameTagAlpha[otherPly] = nil
+            continue
+        end
+
         local markPosition = tagPosition or target:GetPos() + Vector(0, 0, target:OBBMaxs().z + 6)
         local markScreenPosition = markPosition:ToScreen()
         if isMarked and markScreenPosition.visible then
