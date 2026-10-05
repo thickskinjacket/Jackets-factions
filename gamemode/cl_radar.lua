@@ -200,7 +200,8 @@ local function DrawRadarRoundTime(radarX, radarY, radarRadius, scale)
 end
 
 local function DrawRadarTeamLives(ply, radarX, radarY, radarRadius, scale)
-    local ownTeam = ply:Team()
+    local isSpectator = ply:Team() == TEAM_SPECTATOR
+    local ownTeam = isSpectator and TEAM_FIREFLIES or ply:Team()
     local enemyTeam = ownTeam == TEAM_FIREFLIES and TEAM_HUNTERS or TEAM_FIREFLIES
     local ownLives = GetGlobalInt("jf_teamlives_" .. ownTeam, 0)
     local enemyLives = GetGlobalInt("jf_teamlives_" .. enemyTeam, 0)
@@ -242,20 +243,21 @@ local function DrawRadarTeamLives(ply, radarX, radarY, radarRadius, scale)
         text = enemyText,
         font = enemyFont,
         pos = {colonX + (colonWidth / 2) + gap, textY},
-        color = Color(166, 49, 49),
+        color = team.GetColor(enemyTeam) or color_white,
         xalign = TEXT_ALIGN_LEFT,
         yalign = TEXT_ALIGN_CENTER
     }, 1, 200)
 end
 
 local function DrawRadarTeamPlayers(ply, radarX, radarY, radarRadius, scale)
-    local ownTeam = ply:Team()
+    local isSpectator = ply:Team() == TEAM_SPECTATOR
+    local ownTeam = isSpectator and TEAM_FIREFLIES or ply:Team()
     local enemyTeam = ownTeam == TEAM_FIREFLIES and TEAM_HUNTERS or TEAM_FIREFLIES
     local ownPlayers = {}
     local enemyPlayers = {}
 
     for _, playerEntity in player.Iterator() do
-        if not IsValid(playerEntity) then continue end
+        if not IsValid(playerEntity) or (isSpectator and not playerEntity:Alive()) then continue end
 
         if playerEntity:Team() == ownTeam then
             table.insert(ownPlayers, playerEntity)
@@ -286,7 +288,7 @@ local function DrawRadarTeamPlayers(ply, radarX, radarY, radarRadius, scale)
     end
 
     DrawTeamIcons(ownPlayers, startX, team.GetColor(ownTeam) or color_white)
-    DrawTeamIcons(enemyPlayers, startX + ownWidth + teamGap, Color(166, 49, 49))
+    DrawTeamIcons(enemyPlayers, startX + ownWidth + teamGap, team.GetColor(enemyTeam) or color_white)
     surface.SetDrawColor(color_white)
     surface.SetMaterial(radarCircleMaterial)
 end
@@ -295,13 +297,16 @@ hook.Add("HUDPaint", "jacketsfactions_radar", function()
     local scale = ScrH() / 1080
 
     local ply = LocalPlayer()
-    if not IsValid(ply) or not ply:Alive() then return end
+    if not IsValid(ply) then return end
+
+    local isSpectator = ply:Team() == TEAM_SPECTATOR
+    if not isSpectator and not ply:Alive() then return end
 
     -- Draw radar background
     local radarRadius = radarConfig.radius * scale
     local radarX = radarConfig.margin.x * scale + radarRadius
     local radarY =  radarConfig.margin.y * scale + radarRadius
-    local radarOrigin = GetRadarPlayerPosition(ply)
+    local radarOrigin = isSpectator and EyePos() or GetRadarPlayerPosition(ply)
 
     surface.SetDrawColor(0, 0, 0, 128)
     surface.SetMaterial(radarCircleMaterial)
@@ -311,9 +316,12 @@ hook.Add("HUDPaint", "jacketsfactions_radar", function()
     DrawRadarTeamPlayers(ply, radarX, radarY, radarRadius, scale)
 
     local playerColor = team.GetColor(ply:Team()) or color_white
-    DrawRadarPlayerBlip(radarX, radarY, scale)
+    if not isSpectator then
+        DrawRadarPlayerBlip(radarX, radarY, scale)
+    end
 
-    local yaw = math.rad(ply:EyeAngles().y)
+    local playerYaw = ply:EyeAngles().y
+    local yaw = math.rad(playerYaw)
     local sinYaw = math.sin(yaw)
     local cosYaw = math.cos(yaw)
 
@@ -367,14 +375,34 @@ hook.Add("HUDPaint", "jacketsfactions_radar", function()
             markerAlpha = 255 * (1 - (age - radarEnemyTrackDuration) / radarEnemyFadeDuration)
         end
 
-        if not isTeammate then
-            local markerColor = Color(radarEnemyColor.r, radarEnemyColor.g, radarEnemyColor.b, markerAlpha)
-            DrawRadarBlip(blipX, blipY, markerColor, scale * pingScale)
+        if not isTeammate or isSpectator then
+            local markerBaseColor = isSpectator
+                and (IsValid(marker.shooter) and team.GetColor(marker.shooter:Team()) or color_white)
+                or radarEnemyColor
+            local markerColor = Color(
+                markerBaseColor.r,
+                markerBaseColor.g,
+                markerBaseColor.b,
+                markerAlpha
+            )
+            local markerFacingAngle = IsValid(marker.shooter)
+                and marker.shooter:EyeAngles().y - playerYaw
+                or 0
+            DrawRadarBlip(
+                blipX,
+                blipY,
+                markerColor,
+                scale * pingScale,
+                false,
+                isSpectator,
+                markerFacingAngle
+            )
         end
     end
 
     for _, teammate in player.Iterator() do
-        if teammate == ply or not IsValid(teammate) or not teammate:Alive() or teammate:Team() ~= ply:Team() then
+        if teammate == ply or not IsValid(teammate) or not teammate:Alive()
+            or (not isSpectator and teammate:Team() ~= ply:Team()) then
             continue
         end
 
@@ -391,18 +419,21 @@ hook.Add("HUDPaint", "jacketsfactions_radar", function()
 
         local teammateScale = scale
         local fireMarker = GetRadarFireMarker(teammate)
-        if fireMarker then
+        if fireMarker and not isSpectator then
             local pingAge = now - fireMarker.pingedAt
             if pingAge < radarPingDuration then
                 teammateScale = scale * (1 + (1 - pingAge / radarPingDuration) * 0.75)
             end
         end
 
-        local facingAngle = teammate:EyeAngles().y - ply:EyeAngles().y
+        local facingAngle = teammate:EyeAngles().y - playerYaw
+        local teammateColor = isSpectator
+            and (team.GetColor(teammate:Team()) or color_white)
+            or playerColor
         DrawRadarBlip(
             blipX,
             blipY,
-            playerColor,
+            teammateColor,
             teammateScale,
             teammate:GetNWBool("downed"),
             true,

@@ -346,10 +346,12 @@ hook.Add("HUDPaint", "JF_enemy_names", function()
     local eyePosition = ply:EyePos()
     local eyeForward = ply:EyeAngles():Forward()
     local rangeSquared = ENEMY_NAME_TAG_RANGE ^ 2
+    local isSpectator = ply:Team() == TEAM_SPECTATOR
     local visibleEnemies = {}
 
     for _, otherPly in player.Iterator() do
-        if not IsValid(otherPly) or otherPly == ply or otherPly:Team() == ply:Team() or otherPly:Team() <= 0 then
+        if not IsValid(otherPly) or otherPly == ply or otherPly:Team() <= 0
+            or (not isSpectator and otherPly:Team() == ply:Team()) then
             continue
         end
 
@@ -361,11 +363,11 @@ hook.Add("HUDPaint", "JF_enemy_names", function()
         if isVisible then
             local targetCenter = target:WorldSpaceCenter()
             local toTarget = targetCenter - eyePosition
-            isVisible = toTarget:LengthSqr() <= rangeSquared
+            isVisible = isSpectator or toTarget:LengthSqr() <= rangeSquared
 
             if isVisible then
                 toTarget:Normalize()
-                isVisible = eyeForward:Dot(toTarget) >= ENEMY_NAME_TAG_FOV
+                isVisible = isSpectator or eyeForward:Dot(toTarget) >= ENEMY_NAME_TAG_FOV
             end
 
             if isVisible then
@@ -424,7 +426,10 @@ hook.Add("HUDPaint", "JF_enemy_names", function()
         if currentAlpha > 0 then
             tagPosition = markPosition
             local screenPosition = tagPosition:ToScreen()
-            local nameColor = Color(HUD_ENEMY_NAME_COLOR.r, HUD_ENEMY_NAME_COLOR.g, HUD_ENEMY_NAME_COLOR.b, currentAlpha * 255)
+            local baseNameColor = isSpectator
+                and (team.GetColor(otherPly:Team()) or color_white)
+                or HUD_ENEMY_NAME_COLOR
+            local nameColor = Color(baseNameColor.r, baseNameColor.g, baseNameColor.b, currentAlpha * 255)
             local outlineColor = Color(HUD_OUTLINE_COLOR.r, HUD_OUTLINE_COLOR.g, HUD_OUTLINE_COLOR.b, currentAlpha * HUD_OUTLINE_COLOR.a)
 
             draw.SimpleTextOutlined(

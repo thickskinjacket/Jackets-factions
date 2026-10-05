@@ -51,7 +51,11 @@ hook.Add("PlayerTick", "JF_mark_enemy", function(ply, movedata)
     net.Start("JF_MarkEnemy")
         net.WriteEntity(target)
         net.WriteVector(target:GetPos())
-    net.Send(team.GetPlayers(ply:Team()))
+    local recipients = team.GetPlayers(ply:Team())
+    for _, spectator in ipairs(team.GetPlayers(TEAM_SPECTATOR)) do
+        table.insert(recipients, spectator)
+    end
+    net.Send(recipients)
 
     ply:AddParts(PART_REWARDS.MARK)
 end)
