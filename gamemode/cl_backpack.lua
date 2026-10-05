@@ -4,6 +4,7 @@ local backpack = {
     isOpen = false,
     panel = nil
 }
+JF_Backpack = backpack
 
 function backpack:Create()
     if IsValid(self.panel) then

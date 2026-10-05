@@ -213,6 +213,8 @@ end
 local plyStartHP, plyOldHP, plyNewHP = 0, -1, -1
 
 hook.Add("HUDPaint", "JF_hud", function()
+    if JF_Backpack and JF_Backpack.isOpen then return end
+
     local scale = ScrH() / 1080
 
     local ply = LocalPlayer()
