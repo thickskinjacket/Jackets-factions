@@ -110,8 +110,10 @@ local function GetRadarFireMarker(shooter)
 end
 
 local function DrawRadarRoundTime(radarX, radarY, radarRadius, scale)
-    local remainingTime = math.max(0, GetGlobalFloat("jf_round_end", 0) - CurTime())
-    if remainingTime <= 0 then return end
+    local roundEnd = GetGlobalFloat("jf_round_end", 0)
+    if roundEnd <= 0 then return end
+
+    local remainingTime = math.max(0, roundEnd - CurTime())
 
     local totalSeconds = math.ceil(remainingTime)
     local minutes = math.floor(totalSeconds / 60)
