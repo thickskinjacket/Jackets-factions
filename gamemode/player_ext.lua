@@ -9,6 +9,10 @@ PART_REWARDS = {
         amount = 30,
         message = "Long Range Kill"
     },
+    HEADSHOT = {
+        amount = 30,
+        message = "Headshot"
+    },
     EXECUTION = {
         amount = 50,
         message = "Execution"
@@ -16,6 +20,18 @@ PART_REWARDS = {
     REVIVE = {
         amount = 100,
         message = "Revive"
+    },
+    MARK = {
+        amount = 15,
+        message = "Marked Target"
+    },
+    RAMPAGE = {
+        amount = 50,
+        message = "Rampage"
+    },
+    REVENGE = {
+        amount = 50,
+        message = "Revenge"
     }
 }
 
