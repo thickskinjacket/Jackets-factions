@@ -24,7 +24,7 @@ resource.AddFile("materials/resource/fonts/D-DINExp-Bold.ttf")
 resource.AddFile("materials/resource/fonts/D-DINExp-Italic.ttf")
 resource.AddFile("materials/hud/small-health.png")
 resource.AddFile("materials/hud/up-arrow2.png")
-resource.AddFile("materials/hud/man.png")
+resource.AddFile("materials/hud/man2.png")
 
 CreateConVar("jf_round_preparation_time", "2", FCVAR_NOTIFY)
 CreateConVar("jf_round_time", "300", FCVAR_NOTIFY)

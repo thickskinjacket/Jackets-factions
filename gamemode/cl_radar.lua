@@ -13,6 +13,7 @@ local radarBlipCache = {}
 local radarCircleMaterial = Material("vgui/white")
 local radarHealthIcon = Material("hud/small-health.png")
 local radarPlayerIcon = Material("hud/up-arrow2.png")
+local radarManIcon = Material("hud/man2.png")
 
 local radarEnemyMarkers = {}
 local radarEnemyTrackDuration = 2
@@ -149,7 +150,7 @@ local function DrawRadarTeamLives(ply, radarX, radarY, radarRadius, scale)
     surface.SetFont(enemyFont)
     local _, enemyHeight = surface.GetTextSize(enemyText)
     local colonX = radarX
-    local textY = radarY + radarRadius + (5 * scale) + math.max(colonHeight, ownHeight, enemyHeight) / 2
+    local textY = radarY + radarRadius + (57 * scale) + math.max(colonHeight, ownHeight, enemyHeight) / 2
 
     draw.TextShadow({
         text = ownText,
@@ -179,6 +180,49 @@ local function DrawRadarTeamLives(ply, radarX, radarY, radarRadius, scale)
     }, 1, 200)
 end
 
+local function DrawRadarTeamPlayers(ply, radarX, radarY, radarRadius, scale)
+    local ownTeam = ply:Team()
+    local enemyTeam = ownTeam == TEAM_FIREFLIES and TEAM_HUNTERS or TEAM_FIREFLIES
+    local ownPlayers = {}
+    local enemyPlayers = {}
+
+    for _, playerEntity in player.Iterator() do
+        if not IsValid(playerEntity) then continue end
+
+        if playerEntity:Team() == ownTeam then
+            table.insert(ownPlayers, playerEntity)
+        elseif playerEntity:Team() == enemyTeam then
+            table.insert(enemyPlayers, playerEntity)
+        end
+    end
+
+    local iconSize = 40 * scale
+    local iconGap = -10 * scale
+    local teamGap = 0 * scale
+    local ownWidth = math.max(0, #ownPlayers * iconSize + (#ownPlayers - 1) * iconGap)
+    local enemyWidth = math.max(0, #enemyPlayers * iconSize + (#enemyPlayers - 1) * iconGap)
+    local totalWidth = ownWidth + teamGap + enemyWidth
+    local startX = radarX - totalWidth / 2
+    local iconY = radarY + radarRadius + (16 * scale)
+
+    local function DrawTeamIcons(teamPlayers, startPosition, teamColor)
+        surface.SetDrawColor(teamColor)
+        surface.SetMaterial(radarManIcon)
+
+        for index = 1, #teamPlayers do
+            local playerAlpha = teamPlayers[index]:Alive() and 255 or 60
+            local iconX = startPosition + (index - 1) * (iconSize + iconGap)
+            surface.SetDrawColor(teamColor.r, teamColor.g, teamColor.b, playerAlpha)
+            surface.DrawTexturedRect(iconX, iconY, iconSize, iconSize)
+        end
+    end
+
+    DrawTeamIcons(ownPlayers, startX, team.GetColor(ownTeam) or color_white)
+    DrawTeamIcons(enemyPlayers, startX + ownWidth + teamGap, Color(166, 49, 49))
+    surface.SetDrawColor(color_white)
+    surface.SetMaterial(radarCircleMaterial)
+end
+
 hook.Add("HUDPaint", "garrysfactions_radar", function()
     local scale = ScrH() / 1080
 
@@ -196,6 +240,7 @@ hook.Add("HUDPaint", "garrysfactions_radar", function()
     surface.DrawPoly(draw.JCircle(radarX, radarY, radarRadius, radarCircleCache))
     DrawRadarRoundTime(radarX, radarY, radarRadius, scale)
     DrawRadarTeamLives(ply, radarX, radarY, radarRadius, scale)
+    DrawRadarTeamPlayers(ply, radarX, radarY, radarRadius, scale)
 
     local playerColor = team.GetColor(ply:Team()) or color_white
     DrawRadarPlayerBlip(radarX, radarY, scale)
