@@ -123,8 +123,9 @@ hook.Add("PostDrawOpaqueRenderables", "draw_downed_players_icons", function()
 
     for ply, rag in pairs(downedPlayers) do
         if not IsValid(rag) or not IsValid(ply) or not ply:Alive() then continue end
-        if ply:Team() ~= lp:Team() then continue end
         if ply == LocalPlayer() then continue end
+        local isTeammate = ply:Team() == lp:Team()
+        if not isTeammate then continue end
 
         local pos = rag:GetPos()
         pos.z = pos.z + 20
@@ -154,21 +155,23 @@ hook.Add("PostDrawOpaqueRenderables", "draw_downed_players_icons", function()
         cam.Start3D2D(pos, ang, math.max(240, math.sqrt(distance)) / 2400)
             surface.SetMaterial(matWhite)
 
-            if LocalPlayer() == rag:GetNWEntity("savior") then
+            if isTeammate and LocalPlayer() == rag:GetNWEntity("savior") then
                 surface.SetDrawColor(11, 16, 183, 255)
                 draw.JRing(0, 0, 75, 10, 0, 360 * fractionRevive, circle75, pie75, 90)
             end
 
-            surface.SetDrawColor(57, 59, 61, 255)
-            draw.JRing(0, 0, 60, 10, 0, 360, circle60, pie60, 90)
-            surface.SetDrawColor(167, 15, 16, 255)
-            draw.JRing(0, 0, 60, 10, 0, 360 * fractionBleedOut, circle60, pie60, 90)
+            if isTeammate then
+                surface.SetDrawColor(57, 59, 61, 255)
+                draw.JRing(0, 0, 60, 10, 0, 360, circle60, pie60, 90)
+                surface.SetDrawColor(167, 15, 16, 255)
+                draw.JRing(0, 0, 60, 10, 0, 360 * fractionBleedOut, circle60, pie60, 90)
 
-            surface.SetDrawColor(123, 183, 232, 255)
-            surface.SetMaterial(health_icon) 
-            surface.DrawTexturedRect(-32, -32, 64, 64)
+                surface.SetDrawColor(123, 183, 232, 255)
+                surface.SetMaterial(health_icon)
+                surface.DrawTexturedRect(-32, -32, 64, 64)
+            end
 
-            draw.SimpleTextOutlined(ply:Nick(), "plyNickFont", 0, -110, team.GetColor(LocalPlayer():Team()), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 1, Color(0, 0, 0, 220))
+            draw.SimpleTextOutlined(ply:Nick(), "plyNickFont", 0, -110, team.GetColor(lp:Team()), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 1, Color(0, 0, 0, 220))
         cam.End3D2D()
         cam.IgnoreZ(false)
     end

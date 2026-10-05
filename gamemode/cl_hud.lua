@@ -347,11 +347,13 @@ hook.Add("HUDPaint", "jacketsfactions_enemy_names", function()
             continue
         end
 
-        local isVisible = otherPly:Alive() and not otherPly:GetNWBool("downed")
+        local isDowned = otherPly:GetNWBool("downed")
+        local target = isDowned and otherPly:GetNWEntity("downed_ragdoll") or otherPly
+        local isVisible = otherPly:Alive() and IsValid(target)
         local tagPosition
 
         if isVisible then
-            local targetCenter = otherPly:WorldSpaceCenter()
+            local targetCenter = target:WorldSpaceCenter()
             local toTarget = targetCenter - eyePosition
             isVisible = toTarget:LengthSqr() <= rangeSquared
 
@@ -371,7 +373,7 @@ hook.Add("HUDPaint", "jacketsfactions_enemy_names", function()
             end
 
             if isVisible then
-                tagPosition = otherPly:GetPos() + Vector(0, 0, otherPly:OBBMaxs().z + 6)
+                tagPosition = target:GetPos() + Vector(0, 0, target:OBBMaxs().z + 6)
                 isVisible = tagPosition:ToScreen().visible
             end
         end
@@ -386,7 +388,7 @@ hook.Add("HUDPaint", "jacketsfactions_enemy_names", function()
         enemyNameTagAlpha[otherPly] = currentAlpha
 
         if currentAlpha > 0 then
-            tagPosition = tagPosition or otherPly:GetPos() + Vector(0, 0, otherPly:OBBMaxs().z + 6)
+            tagPosition = tagPosition or target:GetPos() + Vector(0, 0, target:OBBMaxs().z + 6)
             local screenPosition = tagPosition:ToScreen()
             local nameColor = Color(HUD_ENEMY_NAME_COLOR.r, HUD_ENEMY_NAME_COLOR.g, HUD_ENEMY_NAME_COLOR.b, currentAlpha * 255)
             local outlineColor = Color(HUD_OUTLINE_COLOR.r, HUD_OUTLINE_COLOR.g, HUD_OUTLINE_COLOR.b, currentAlpha * HUD_OUTLINE_COLOR.a)
