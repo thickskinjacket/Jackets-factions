@@ -246,6 +246,10 @@ hook.Add("PlayerDeath", "HSR_pd", function(ply, _, atkr)
 
 	if not IsValid(downed_ragdoll) then return end
 
+	if IsValid(atkr) and atkr:IsPlayer() and atkr ~= ply and atkr:Team() ~= ply:Team() then
+		atkr:AddParts(50)
+	end
+
 	ply:SetNWBool("downed", false)
     ply:Spectate(OBS_MODE_CHASE)
     ply:SetMoveType(MOVETYPE_OBSERVER)
