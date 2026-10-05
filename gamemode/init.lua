@@ -36,6 +36,7 @@ CreateConVar("jf_team_lives", "20", {FCVAR_ARCHIVE, FCVAR_NOTIFY})
 
 util.AddNetworkString("JF_NotifyRoundState")
 util.AddNetworkString("JF_SendRadarPosition")
+util.AddNetworkString("JF_ApplyWeaponTier")
 
 local function GetRandomTeamModel(ply)
     local models = JF_CONFIG.PLAYER_MODELS[ply:Team()]
@@ -110,6 +111,58 @@ function GM:PlayerLoadout(ply)
     return false
 end
 
+local function ApplyWeaponTier(weapon, tier)
+    if not IsValid(weapon) then return false end
+
+    local weaponClass = weapon:GetClass()
+    local tierConfig = JF_CONFIG.WEAPON_TIER_MULTIPLIERS[weaponClass][tier]
+    local rpmMultiplier = tierConfig.rpm
+    local accuracyMultiplier = tierConfig.accuracy
+    local recoilMultiplier = tierConfig.recoil
+
+    weapon.Primary_TFA = weapon.Primary_TFA or weapon.Primary or {}
+    weapon.JFTierBaseStats = weapon.JFTierBaseStats or {}
+
+    weapon.JFTierBaseStats.RPM = weapon.JFTierBaseStats.RPM or weapon.Primary_TFA.RPM
+    weapon.JFTierBaseStats.Spread = weapon.JFTierBaseStats.Spread or weapon.Primary_TFA.Spread
+    weapon.JFTierBaseStats.IronAccuracy = weapon.JFTierBaseStats.IronAccuracy or weapon.Primary_TFA.IronAccuracy
+    weapon.JFTierBaseStats.Recoil = weapon.JFTierBaseStats.Recoil or weapon.Primary_TFA.Recoil
+
+    if weapon.RecoilTable and not weapon.JFTierBaseRecoilTable then
+        weapon.JFTierBaseRecoilTable = {}
+
+        for index, recoil in ipairs(weapon.RecoilTable) do
+            weapon.JFTierBaseRecoilTable[index] = Angle(recoil.p, recoil.y, recoil.r)
+        end
+    end
+
+    local baseStats = weapon.JFTierBaseStats
+    weapon.Primary_TFA.RPM = baseStats.RPM * rpmMultiplier
+    weapon.Primary_TFA.Spread = baseStats.Spread * accuracyMultiplier
+    weapon.Primary_TFA.IronAccuracy = baseStats.IronAccuracy * accuracyMultiplier
+    weapon.Primary_TFA.Recoil = baseStats.Recoil
+
+    if weapon.JFTierBaseRecoilTable then
+        weapon.RecoilTable = {}
+
+        for index, recoil in ipairs(weapon.JFTierBaseRecoilTable) do
+            weapon.RecoilTable[index] = Angle(
+                recoil.p * recoilMultiplier,
+                recoil.y * recoilMultiplier,
+                recoil.r * recoilMultiplier
+            )
+        end
+    end
+
+    weapon:ClearStatCache("Primary.RPM")
+    weapon:ClearStatCache("Primary.Spread")
+    weapon:ClearStatCache("Primary.IronAccuracy")
+    weapon:ClearStatCache("Primary.Recoil")
+
+    weapon.JFTier = tier
+    return true
+end
+
 function GM:Initialize()
     WaitForPlayers()
 end
@@ -174,9 +227,24 @@ local function AssignRoundWeapons(players)
     local sideArms = JF_CONFIG.WEAPON_POOLS.SIDE_ARM
 
     for _, ply in ipairs(players) do
+        ply.JFWeaponTiers = ply.JFWeaponTiers or {}
+
+        local longGun = longGuns[math.random(#longGuns)]
+        local sideArm = sideArms[math.random(#sideArms)]
+
         ply.JFRoundLoadout = {
-            longGun = longGuns[math.random(#longGuns)],
-            sideArm = sideArms[math.random(#sideArms)]
+            longGun = {
+                class = longGun.class,
+                baseClass = longGun.class,
+                tier = 1,
+                ammo = longGun.ammo
+            },
+            sideArm = {
+                class = sideArm.class,
+                baseClass = sideArm.class,
+                tier = 1,
+                ammo = sideArm.ammo
+            }
         }
     end
 end
@@ -333,4 +401,47 @@ concommand.Add("jf_set_team", function(ply, cmd, args)
 
     ply:SetTeam(teamID)
     ply:PrintMessage(HUD_PRINTCONSOLE, "You are now on team: " .. team.GetName(teamID))
+end)
+
+concommand.Add("jf_set_weapon_tier", function(ply, cmd, args)
+    if not IsValid(ply) then
+        print("jf_set_weapon_tier must be run by a player.")
+        return
+    end
+
+    if not ply:IsAdmin() then
+        ply:PrintMessage(HUD_PRINTCONSOLE, "You do not have permission to set weapon tiers.")
+        return
+    end
+
+    local tier = tonumber(args[1])
+    local weapon = ply:GetActiveWeapon()
+    if not IsValid(weapon) then
+        ply:PrintMessage(HUD_PRINTCONSOLE, "You must be holding a weapon.")
+        return
+    end
+
+    if not tier or tier ~= math.floor(tier) then
+        ply:PrintMessage(HUD_PRINTCONSOLE, "Usage: jf_set_weapon_tier <1|2|3>")
+        return
+    end
+
+    if not ApplyWeaponTier(weapon, tier) then
+        ply:PrintMessage(HUD_PRINTCONSOLE, "Unable to apply weapon tier.")
+        return
+    end
+
+    ply.JFWeaponTiers = ply.JFWeaponTiers or {}
+    ply.JFWeaponTiers[weapon:GetClass()] = tier
+
+    net.Start("JF_ApplyWeaponTier")
+        net.WriteEntity(weapon)
+        net.WriteUInt(tier, 2)
+    net.Send(ply)
+
+    ply:PrintMessage(HUD_PRINTCONSOLE, string.format(
+        "Applied tier %d to %s.",
+        tier,
+        weapon:GetClass()
+    ))
 end)
