@@ -1,4 +1,4 @@
-GM.Name = "Garry's Factions"
+GM.Name = "Jacket's Factions"
 GM.Author = "thickskinjacket"
 
 DeriveGamemode("sandbox")

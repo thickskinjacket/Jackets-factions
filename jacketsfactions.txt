@@ -1,7 +1,7 @@
-"garrysfactions"
+"jacketsfactions"
 {
 	"base"		"sandbox"	
-	"title"		"Garry's Factions"
+	"title"		"Jacket's Factions"
 	"version"	"1.0.0"
 	"menusystem"	"1"
 }
