@@ -4,6 +4,7 @@ include("player_ext.lua")
 include("player_ext_shared.lua")
 include("sv_workshop.lua")
 include("sv_revive.lua")
+include("sv_radar.lua")
 
 AddCSLuaFile("shared.lua")
 AddCSLuaFile("cl_init.lua")
@@ -31,6 +32,7 @@ CreateConVar("jf_respawn_time", "5", FCVAR_NOTIFY)
 CreateConVar("jf_team_lives", "4", FCVAR_NOTIFY)
 
 util.AddNetworkString("JF_NotifyRoundState")
+util.AddNetworkString("JF_SendRadarPosition")
 
 function GM:Initialize()
     WaitForPlayers()
