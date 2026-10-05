@@ -32,7 +32,7 @@ JF_CONFIG.WEAPON_TIER_MULTIPLIERS = {
         rpm = 1.2,
         accuracy = 0.8,
         recoil = 0.7,
-        clipSize = 1.4
+        clipSize = 1.5
     }
 }
 

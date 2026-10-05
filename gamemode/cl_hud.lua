@@ -114,7 +114,7 @@ local function DrawAmmoDisplay(x, y, offset, ply, scale)
     if !currentWeapon:IsValid() then return end
 
     local clip = currentWeapon:Clip1()
-    local clipMax = currentWeapon:GetMaxClip1()
+    local clipMax = currentWeapon:GetStat("Primary.ClipSize")
     local ammoType = currentWeapon:GetPrimaryAmmoType()
     local clipReserve = ply:GetAmmoCount(ammoType)
 
