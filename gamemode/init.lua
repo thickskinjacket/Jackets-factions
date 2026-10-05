@@ -36,6 +36,29 @@ CreateConVar("jf_team_lives", "20", {FCVAR_ARCHIVE, FCVAR_NOTIFY})
 util.AddNetworkString("JF_NotifyRoundState")
 util.AddNetworkString("JF_SendRadarPosition")
 
+local function GetRandomTeamModel(ply)
+    local models = GAMEMODE.PLAYER_MODELS[ply:Team()]
+    if not models or #models == 0 then return nil end
+
+    return models[math.random(#models)]
+end
+
+function GM:PlayerSetModel(ply)
+    local model = ply.JFTeamModel or GetRandomTeamModel(ply)
+    if not model then return end
+
+    ply.JFTeamModel = model
+    ply:SetModel(model)
+end
+
+function GM:PlayerSpawn(ply)
+    local model = ply.JFTeamModel or GetRandomTeamModel(ply)
+    if not model then return end
+
+    ply.JFTeamModel = model
+    ply:SetModel(model)
+end
+
 function GM:Initialize()
     WaitForPlayers()
 end
@@ -89,7 +112,9 @@ local function AssignTeams(players)
     end
 
     for i, ply in ipairs(players) do
-        ply:SetTeam(i % 2 == 0 and TEAM_FIREFLIES or TEAM_HUNTERS)
+        local plyTeam = i % 2 == 0 and TEAM_FIREFLIES or TEAM_HUNTERS
+        ply:SetTeam(plyTeam)
+        ply.JFTeamModel = GetRandomTeamModel(ply)
     end
 end
 
