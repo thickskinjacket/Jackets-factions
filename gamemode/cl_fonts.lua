@@ -3,7 +3,8 @@ function createFonts(scale)
     
     surface.CreateFont("plyNickFont", {
         font = "D-DIN",
-        size = 72 * scale 
+        size = 72 * scale,
+        weight = 600
     })
     surface.CreateFont("textFont", {
         font = "D-DIN",

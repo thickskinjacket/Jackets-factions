@@ -146,8 +146,8 @@ local function DrawRadarTeamLives(ply, radarX, radarY, radarRadius, scale)
     local ownFont = ownLives > enemyLives and "jf_radar_lives_big" or "jf_radar_lives"
     local enemyFont = enemyLives > ownLives and "jf_radar_lives_big" or "jf_radar_lives"
     local colonFont = "jf_radar_lives"
-    local ownText = tostring(ownLives)
-    local enemyText = tostring(enemyLives)
+    local ownText = string.format("%02d", ownLives)
+    local enemyText = string.format("%02d", enemyLives)
     local gap = 3 * scale
 
     surface.SetFont(colonFont)
