@@ -74,3 +74,11 @@ hook.Add("PlayerBindPress", "JF_BackpackMenu", function(_, bind, pressed)
 
     return true
 end)
+
+hook.Add("CreateMove", "JF_BackpackStopMovement", function(cmd)
+    if not backpack.isOpen then return end
+
+    cmd:SetForwardMove(0)
+    cmd:SetSideMove(0)
+    cmd:SetUpMove(0)
+end)
