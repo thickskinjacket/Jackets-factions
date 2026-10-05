@@ -39,6 +39,44 @@ CreateConVar("jf_team_lives", "20", {FCVAR_ARCHIVE, FCVAR_NOTIFY})
 util.AddNetworkString("JF_NotifyRoundState")
 util.AddNetworkString("JF_SendRadarPosition")
 util.AddNetworkString("JF_ApplyWeaponTier")
+util.AddNetworkString("JF_SetSpectator")
+
+local function RestoreSpectator(ply)
+    ply.JFSpectator = false
+    ply.JFSpectatorPendingDisable = nil
+    ply:UnSpectate()
+    ply:SetNoDraw(false)
+    ply:SetMoveType(MOVETYPE_WALK)
+    ply:SetTeam(TEAM_UNASSIGNED)
+end
+
+net.Receive("JF_SetSpectator", function(_, ply)
+    local isSpectator = net.ReadBool()
+    ply.NextRespawnWave = nil
+
+    if not isSpectator then
+        if GetRoundState() == ROUND_ACTIVE then
+            ply.JFSpectatorPendingDisable = true
+            return
+        end
+
+        RestoreSpectator(ply)
+        return
+    end
+
+    ply.JFSpectator = true
+    ply.JFSpectatorPendingDisable = nil
+    ply:SetTeam(TEAM_SPECTATOR)
+    if ply:Alive() then
+        ply:KillSilent()
+    end
+    ply:Spectate(OBS_MODE_ROAMING)
+    ply:SetNoDraw(true)
+
+    if GetRoundState() == ROUND_ACTIVE then
+        StartWinCheck()
+    end
+end)
 
 local function GetRandomTeamModel(ply)
     local models = JF_CONFIG.PLAYER_MODELS[ply:Team()]
@@ -56,6 +94,13 @@ function GM:PlayerSetModel(ply)
 end
 
 function GM:PlayerSpawn(ply)
+    if ply.JFSpectator then
+        ply:SetTeam(TEAM_SPECTATOR)
+        ply:Spectate(OBS_MODE_ROAMING)
+        ply:SetNoDraw(true)
+        return
+    end
+
     self.BaseClass.PlayerSpawn(self, ply)
     ply:SetWalkSpeed(175)
     ply:SetRunSpeed(300)
@@ -203,7 +248,7 @@ end
 local function EnoughPlayers()
     local ready = 0
     for _, ply in player.Iterator() do
-        if IsValid(ply) and ply:ShouldSpawn() then
+        if IsValid(ply) and not ply.JFSpectator and ply:ShouldSpawn() then
             ready = ready + 1
         end
     end
@@ -279,7 +324,7 @@ local function SpawnRespawnWave()
     if GetRoundState() ~= ROUND_ACTIVE then return end
 
     for _, ply in player.Iterator() do
-        if not IsValid(ply) or ply:Alive() or ply.NextRespawnWave ~= true then continue end
+        if not IsValid(ply) or ply.JFSpectator or ply:Alive() or ply.NextRespawnWave ~= true then continue end
 
         ply:Spawn()
         ply.NextRespawnWave = nil
@@ -294,7 +339,7 @@ function StartWinCheck()
     local huntersAlive = GAMEMODE.TeamLives[TEAM_HUNTERS] > 0
 
     for _, ply in player.Iterator() do
-        if IsValid(ply) then
+        if IsValid(ply) and not ply.JFSpectator then
             local isPlaying = ply:Alive() or ply.NextRespawnWave == true
 
             if isPlaying then
@@ -320,6 +365,12 @@ function PrepareRound()
     SetRoundState(ROUND_STARTING)
     timer.Remove("jf_respawn_wave")
 
+    for _, ply in player.Iterator() do
+        if IsValid(ply) and ply.JFSpectatorPendingDisable then
+            RestoreSpectator(ply)
+        end
+    end
+
     print("Preparing round...")
     local roundTime = GetConVar("jf_round_time"):GetInt()
     SetRoundEnd(CurTime() + roundTime)
@@ -328,7 +379,7 @@ function PrepareRound()
 
     local players = {}
     for _, ply in player.Iterator() do
-        if IsValid(ply) and ply:ShouldSpawn() then
+        if IsValid(ply) and not ply.JFSpectator and ply:ShouldSpawn() then
             ply:SetParts(0)
             table.insert(players, ply)
         end
@@ -369,6 +420,12 @@ function EndRound()
     timer.Remove("jf_respawn_wave")
 
     print("Round over.")
+
+    for _, ply in player.Iterator() do
+        if IsValid(ply) and ply.JFSpectatorPendingDisable then
+            RestoreSpectator(ply)
+        end
+    end
 
     local postRoundTime = GetConVar("jf_round_post_time"):GetInt()
     timer.Simple(postRoundTime, function()

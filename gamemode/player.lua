@@ -11,6 +11,8 @@ function GM:PlayerDeathThink(ply)
 end
 
 function GM:PlayerDeath(ply, attacker, dmginfo)
+    if ply.JFSpectator then return end
+
     local roundState = GetRoundState()
 
     if roundState == ROUND_ACTIVE then
