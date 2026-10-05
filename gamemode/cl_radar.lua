@@ -18,11 +18,47 @@ local radarManIcon = Material("hud/man2.png")
 local radarEnemyMarkers = {}
 local radarEnemyTrackDuration = 2
 local radarEnemyFadeDuration = 1.5
+local radarMarkDuration = 5
+local radarMarkFadeDuration = 1
 local radarPingDuration = 0.5
+local radarEnemyColor = Color(255, 64, 64)
+
+local function GetActiveMark(shooter, timestamp)
+    for _, marker in ipairs(radarEnemyMarkers) do
+        if marker.kind == "mark"
+            and marker.shooter == shooter
+            and timestamp - marker.firedAt < radarMarkDuration then
+            return marker
+        end
+    end
+
+    return nil
+end
+
+function JF_IsEnemyMarked(shooter)
+    return GetActiveMark(shooter, CurTime()) ~= nil
+end
+
+function JF_GetEnemyMarkAlpha(shooter)
+    local mark = GetActiveMark(shooter, CurTime())
+    if not mark then return 0 end
+
+    local age = CurTime() - mark.firedAt
+    local fadeStart = radarMarkDuration - radarMarkFadeDuration
+    if age < fadeStart then return 255 end
+
+    return 255 * (1 - (age - fadeStart) / radarMarkFadeDuration)
+end
 
 local function UpdateRadarMarker(shooter, position, timestamp)
+    local activeMark = GetActiveMark(shooter, timestamp)
+    if activeMark then
+        activeMark.pingedAt = timestamp
+        return
+    end
+
     for _, marker in ipairs(radarEnemyMarkers) do
-        if marker.shooter == shooter then
+        if marker.kind == "fire" and marker.shooter == shooter then
             marker.position = position
             marker.pingedAt = timestamp
             marker.firedAt = timestamp
@@ -34,12 +70,27 @@ local function UpdateRadarMarker(shooter, position, timestamp)
         shooter = shooter,
         position = position,
         firedAt = timestamp,
-        pingedAt = timestamp
+        pingedAt = timestamp,
+        kind = "fire"
     })
 end
 
 net.Receive("JF_SendRadarPosition", function()
     UpdateRadarMarker(net.ReadEntity(), net.ReadVector(), CurTime())
+end)
+
+net.Receive("JF_MarkEnemy", function()
+    local enemy = net.ReadEntity()
+    local position = net.ReadVector()
+    local timestamp = CurTime()
+
+    table.insert(radarEnemyMarkers, {
+        shooter = enemy,
+        position = position,
+        firedAt = timestamp,
+        pingedAt = nil,
+        kind = "mark"
+    })
 end)
 
 local function DrawRadarBlip(x, y, color, scale, isDowned)
@@ -260,15 +311,23 @@ hook.Add("HUDPaint", "garrysfactions_radar", function()
     for index = #radarEnemyMarkers, 1, -1 do
         local marker = radarEnemyMarkers[index]
         local age = now - marker.firedAt
+        if marker.kind == "fire" and GetActiveMark(marker.shooter, now) then
+            continue
+        end
+
         local isTeammate = IsValid(marker.shooter) and marker.shooter:Team() == ply:Team()
-        local markerLifetime = isTeammate and radarPingDuration or radarEnemyTrackDuration + radarEnemyFadeDuration
+        local markerLifetime = marker.kind == "mark"
+            and radarMarkDuration
+            or (isTeammate and radarPingDuration or radarEnemyTrackDuration + radarEnemyFadeDuration)
         if age >= markerLifetime then
             table.remove(radarEnemyMarkers, index)
             continue
         end
 
         local markerPosition = marker.position
-        if not isTeammate and age < radarEnemyTrackDuration + radarEnemyFadeDuration and IsValid(marker.shooter) then
+        if not isTeammate
+            and (marker.kind == "mark" or age < radarEnemyTrackDuration + radarEnemyFadeDuration)
+            and IsValid(marker.shooter) then
             markerPosition = GetRadarPlayerPosition(marker.shooter)
         end
 
@@ -282,16 +341,25 @@ hook.Add("HUDPaint", "garrysfactions_radar", function()
             sinYaw,
             cosYaw
         )
-        local pingAge = now - marker.pingedAt
-        local pingProgress = math.min(pingAge / radarPingDuration, 1)
-        local pingScale = 1 + (1 - pingProgress) * 0.75
+        local pingScale = 1
+        if marker.pingedAt then
+            local pingAge = now - marker.pingedAt
+            local pingProgress = math.min(pingAge / radarPingDuration, 1)
+            pingScale = 1 + (1 - pingProgress) * 0.75
+        end
         local markerAlpha = 255
-        if not isTeammate and age >= radarEnemyTrackDuration then
+        if marker.kind == "mark" then
+            local fadeStart = markerLifetime - radarMarkFadeDuration
+            if age >= fadeStart then
+                markerAlpha = 255 * (1 - (age - fadeStart) / radarMarkFadeDuration)
+            end
+        elseif not isTeammate and age >= radarEnemyTrackDuration then
             markerAlpha = 255 * (1 - (age - radarEnemyTrackDuration) / radarEnemyFadeDuration)
         end
 
         if not isTeammate then
-            DrawRadarBlip(blipX, blipY, Color(255, 64, 64, markerAlpha), scale * pingScale)
+            local markerColor = Color(radarEnemyColor.r, radarEnemyColor.g, radarEnemyColor.b, markerAlpha)
+            DrawRadarBlip(blipX, blipY, markerColor, scale * pingScale)
         end
     end
 

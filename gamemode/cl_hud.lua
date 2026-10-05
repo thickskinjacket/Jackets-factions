@@ -30,6 +30,7 @@ local HUD_SECONDARY_TEXT_COLOR = Color(180, 180, 180, 255)
 local HUD_HEALTH_GHOST_COLOR = Color(140, 28, 26, 255)
 local HUD_PARTS_COLOR = Color(127, 174, 149)
 local HUD_ENEMY_NAME_COLOR = Color(166, 49, 49, 255)
+local HUD_MARK_MATERIAL = Material("hud/mark.png")
 local ENEMY_NAME_TAG_RANGE = 1000
 local ENEMY_NAME_TAG_FOV = math.cos(math.rad(30))
 local enemyNameTagAlpha = {}
@@ -336,6 +337,7 @@ hook.Add("HUDPaint", "JF_teammate_names", function()
 end)
 
 hook.Add("HUDPaint", "JF_enemy_names", function()
+    local scale = ScrH() / 1080
     local ply = LocalPlayer()
     if not IsValid(ply) then return end
 
@@ -389,8 +391,31 @@ hook.Add("HUDPaint", "JF_enemy_names", function()
         end
         enemyNameTagAlpha[otherPly] = currentAlpha
 
+        local markAlpha = JF_GetEnemyMarkAlpha(otherPly)
+        local isMarked = markAlpha > 0
+        local markPosition = tagPosition or target:GetPos() + Vector(0, 0, target:OBBMaxs().z + 6)
+        local markScreenPosition = markPosition:ToScreen()
+        if isMarked and markScreenPosition.visible then
+            local markSize = 32 * scale
+            surface.SetFont("jf_teammate_name")
+            local _, nameHeight = surface.GetTextSize(otherPly:Nick())
+            surface.SetDrawColor(
+                HUD_ENEMY_NAME_COLOR.r,
+                HUD_ENEMY_NAME_COLOR.g,
+                HUD_ENEMY_NAME_COLOR.b,
+                markAlpha
+            )
+            surface.SetMaterial(HUD_MARK_MATERIAL)
+            surface.DrawTexturedRect(
+                markScreenPosition.x - markSize / 2,
+                markScreenPosition.y - nameHeight / 2 - markSize - (2 * scale),
+                markSize,
+                markSize
+            )
+        end
+
         if currentAlpha > 0 then
-            tagPosition = tagPosition or target:GetPos() + Vector(0, 0, target:OBBMaxs().z + 6)
+            tagPosition = markPosition
             local screenPosition = tagPosition:ToScreen()
             local nameColor = Color(HUD_ENEMY_NAME_COLOR.r, HUD_ENEMY_NAME_COLOR.g, HUD_ENEMY_NAME_COLOR.b, currentAlpha * 255)
             local outlineColor = Color(HUD_OUTLINE_COLOR.r, HUD_OUTLINE_COLOR.g, HUD_OUTLINE_COLOR.b, currentAlpha * HUD_OUTLINE_COLOR.a)
