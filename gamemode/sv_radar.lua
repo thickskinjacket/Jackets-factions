@@ -6,7 +6,7 @@ local function RevealPositionOnBulletFire(ent, data)
         net.WriteVector(ent:GetPos())
     net.Broadcast()
 end
-hook.Add("PostEntityFireBullets", "jacketsfactions_enemy_fire_reveal", RevealPositionOnBulletFire)
+hook.Add("PostEntityFireBullets", "JF_enemy_fire_reveal", RevealPositionOnBulletFire)
 
 local function RevealPositionOnRunning(ply, movedata)
     if not IsValid(ply) or not ply:IsPlayer() or not ply:Alive() then return end
@@ -22,4 +22,4 @@ local function RevealPositionOnRunning(ply, movedata)
         net.WriteVector(ply:GetPos())
     net.Broadcast()
 end
-hook.Add("PlayerTick", "jacketsfactions_enemy_running_ping", RevealPositionOnRunning)
+hook.Add("PlayerTick", "JF_enemy_running_ping", RevealPositionOnRunning)

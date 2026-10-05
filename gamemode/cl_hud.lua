@@ -211,7 +211,7 @@ end
 
 local plyStartHP, plyOldHP, plyNewHP = 0, -1, -1
 
-hook.Add("HUDPaint", "jacketsfactions_hud", function()
+hook.Add("HUDPaint", "JF_hud", function()
     local scale = ScrH() / 1080
 
     local ply = LocalPlayer()
@@ -267,7 +267,7 @@ hook.Add("HUDPaint", "jacketsfactions_hud", function()
     DrawHealthRing(ringX, ringY, ringRadius, ringThickness, hp, hpMax)
 end, HOOK_HIGH)
 
-hook.Add("PreDrawHalos", "jacketsfactions_teammate_halos", function()
+hook.Add("PreDrawHalos", "JF_teammate_halos", function()
     local ply = LocalPlayer()
     
     if not IsValid(ply) then return end
@@ -296,7 +296,7 @@ hook.Add("PreDrawHalos", "jacketsfactions_teammate_halos", function()
     end
 end)
 
-hook.Add("HUDPaint", "jacketsfactions_teammate_names", function()
+hook.Add("HUDPaint", "JF_teammate_names", function()
     local ply = LocalPlayer()
     if not IsValid(ply) then return end
 
@@ -335,7 +335,7 @@ hook.Add("HUDPaint", "jacketsfactions_teammate_names", function()
     end
 end)
 
-hook.Add("HUDPaint", "jacketsfactions_enemy_names", function()
+hook.Add("HUDPaint", "JF_enemy_names", function()
     local ply = LocalPlayer()
     if not IsValid(ply) then return end
 

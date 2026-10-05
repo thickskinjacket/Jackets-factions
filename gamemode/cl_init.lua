@@ -6,6 +6,18 @@ include("cl_radar.lua")
 
 CreateConVar("jf_spectator", "0", FCVAR_ARCHIVE)
 
+hook.Add("SpawnMenuOpen", "JF_AdminOnlySpawnMenu", function()
+    if not LocalPlayer():IsAdmin() then
+        return false
+    end
+end)
+
+hook.Add("ContextMenuOpen", "JF_AdminOnlyContextMenu", function()
+    if not LocalPlayer():IsAdmin() then
+        return false
+    end
+end)
+
 local function ReceiveRoundState()
     GAMEMODE.round_state = net.ReadUInt(3)
 end
