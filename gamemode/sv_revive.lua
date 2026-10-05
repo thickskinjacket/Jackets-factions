@@ -173,7 +173,9 @@ hook.Add("Think", "HSR_reviving", function()
 		local savior = rag:GetNWEntity("savior")
 
 		if IsValid(savior) and not savior:IsNPC() then
-			if not savior:KeyDown(IN_USE) then
+			local eyeTrace = savior:GetEyeTrace()
+			local tooFarAway = savior:GetPos():DistToSqr(rag:GetPos()) > 100 * 100
+			if not savior:KeyDown(IN_USE) or eyeTrace.Entity ~= rag or tooFarAway then
 				rag:SetNWEntity("savior", NULL)
 				rag:SetNWFloat("reviveStartTime", CurTime())
 			end
