@@ -13,7 +13,9 @@ ROUND_OVER = 3
 TEAM_FIREFLIES = 1
 TEAM_HUNTERS = 2
 
-GAMEMODE.WEAPON_POOLS = {
+JF_CONFIG = JF_CONFIG or {}
+
+JF_CONFIG.WEAPON_POOLS = {
 	LONG_GUN = {
 		{
 			class = "arc9_burstrifle",
@@ -148,7 +150,7 @@ PART_REWARDS = {
     }
 }
 
-GAMEMODE.PLAYER_MODELS = {
+JF_CONFIG.PLAYER_MODELS = {
     [TEAM_HUNTERS] = {
         "models/dizcordum/citizens/playermodels/p_female_01.mdl",
         "models/dizcordum/citizens/playermodels/p_female_02.mdl",

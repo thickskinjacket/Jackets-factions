@@ -3,6 +3,7 @@ include("player.lua")
 include("player_ext.lua")
 include("player_ext_shared.lua")
 include("sv_workshop.lua")
+include("sv_arc9_settings.lua")
 include("sv_revive.lua")
 include("sv_radar.lua")
 
@@ -37,7 +38,7 @@ util.AddNetworkString("JF_NotifyRoundState")
 util.AddNetworkString("JF_SendRadarPosition")
 
 local function GetRandomTeamModel(ply)
-    local models = GAMEMODE.PLAYER_MODELS[ply:Team()]
+    local models = JF_CONFIG.PLAYER_MODELS[ply:Team()]
     if not models or #models == 0 then return nil end
 
     return models[math.random(#models)]
@@ -166,8 +167,8 @@ local function AssignTeams(players)
 end
 
 local function AssignRoundWeapons(players)
-    local longGuns = GAMEMODE.WEAPON_POOLS.LONG_GUN
-    local sideArms = GAMEMODE.WEAPON_POOLS.SIDE_ARM
+    local longGuns = JF_CONFIG.WEAPON_POOLS.LONG_GUN
+    local sideArms = JF_CONFIG.WEAPON_POOLS.SIDE_ARM
 
     for _, ply in ipairs(players) do
         ply.JFRoundLoadout = {
