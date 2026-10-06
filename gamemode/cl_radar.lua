@@ -259,9 +259,7 @@ local function DrawRadarTeamPlayers(ply, radarX, radarY, radarRadius, scale)
     for _, playerEntity in player.Iterator() do
         if not IsValid(playerEntity) then continue end
 
-        if isSpectator and not playerEntity:Alive() then
-            continue
-        elseif playerEntity:Team() == ownTeam then
+        if playerEntity:Team() == ownTeam then
             table.insert(ownPlayers, playerEntity)
         elseif playerEntity:Team() == enemyTeam then
             table.insert(enemyPlayers, playerEntity)
