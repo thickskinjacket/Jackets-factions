@@ -5,20 +5,6 @@ include("cl_revive.lua")
 include("cl_radar.lua")
 include("cl_backpack.lua")
 
-CreateConVar("jf_spectator", "0", FCVAR_ARCHIVE)
-
-cvars.AddChangeCallback("jf_spectator", function(_, _, newValue)
-    net.Start("JF_SetSpectator")
-        net.WriteBool(tonumber(newValue) == 1)
-    net.SendToServer()
-end, "JF_SpectatorSync")
-
-hook.Add("InitPostEntity", "JF_SyncSpectatorState", function()
-    net.Start("JF_SetSpectator")
-        net.WriteBool(GetConVar("jf_spectator"):GetBool())
-    net.SendToServer()
-end)
-
 hook.Add("SpawnMenuOpen", "JF_AdminOnlySpawnMenu", function()
     if not LocalPlayer():IsAdmin() then
         return false

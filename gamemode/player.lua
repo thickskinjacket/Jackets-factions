@@ -11,8 +11,6 @@ function GM:PlayerDeathThink(ply)
 end
 
 function GM:PlayerDeath(ply, attacker, dmginfo)
-    if ply.JFSpectator then return end
-
     local roundState = GetRoundState()
     local plyTeam = ply:Team()
     ply.JFRespawnAvailableAt = CurTime() + 4
