@@ -275,8 +275,7 @@ hook.Add("PreDrawHalos", "JF_teammate_halos", function()
     
     if not IsValid(ply) then return end
 
-    local deadSpectatorTeam = ply:GetNWInt("jf_dead_spectator_team", 0)
-    local plyTeam = deadSpectatorTeam > 0 and deadSpectatorTeam or ply:Team()
+    local plyTeam = ply:Team()
 
     local teammates = {}
     
@@ -304,8 +303,7 @@ hook.Add("HUDPaint", "JF_teammate_names", function()
     local ply = LocalPlayer()
     if not IsValid(ply) then return end
 
-    local deadSpectatorTeam = ply:GetNWInt("jf_dead_spectator_team", 0)
-    local plyTeam = deadSpectatorTeam > 0 and deadSpectatorTeam or ply:Team()
+    local plyTeam = ply:Team()
     local nameColor = team.GetColor(plyTeam) or color_white
 
     for _, otherPly in player.Iterator() do
@@ -348,9 +346,8 @@ hook.Add("HUDPaint", "JF_enemy_names", function()
     local eyePosition = ply:EyePos()
     local eyeForward = ply:EyeAngles():Forward()
     local rangeSquared = ENEMY_NAME_TAG_RANGE ^ 2
-    local deadSpectatorTeam = ply:GetNWInt("jf_dead_spectator_team", 0)
-    local isSpectator = ply:Team() == TEAM_SPECTATOR and deadSpectatorTeam == 0
-    local playerTeam = deadSpectatorTeam > 0 and deadSpectatorTeam or ply:Team()
+    local isSpectator = ply:Team() == TEAM_SPECTATOR
+    local playerTeam = ply:Team()
     local visibleEnemies = {}
 
     for _, otherPly in player.Iterator() do
