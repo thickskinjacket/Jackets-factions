@@ -275,27 +275,24 @@ local function DrawRadarTeamPlayers(ply, radarX, radarY, radarRadius, scale)
 
     local iconSize = 40 * scale
     local iconGap = -15 * scale
-    local teamGap = 0 * scale
-    local ownWidth = math.max(0, #ownPlayers * iconSize + (#ownPlayers - 1) * iconGap)
-    local enemyWidth = math.max(0, #enemyPlayers * iconSize + (#enemyPlayers - 1) * iconGap)
-    local totalWidth = ownWidth + teamGap + enemyWidth
-    local startX = radarX - totalWidth / 2
     local iconY = radarY + radarRadius + (16 * scale)
+    local ownStartX = radarX - iconSize
+    local enemyStartX = radarX
 
-    local function DrawTeamIcons(teamPlayers, startPosition, teamColor)
+    local function DrawTeamIcons(teamPlayers, startPosition, teamColor, direction)
         surface.SetDrawColor(teamColor)
         surface.SetMaterial(radarManIcon)
 
         for index = 1, #teamPlayers do
             local playerAlpha = teamPlayers[index]:Alive() and 255 or 60
-            local iconX = startPosition + (index - 1) * (iconSize + iconGap)
+            local iconX = startPosition + (index - 1) * (iconSize + iconGap) * direction
             surface.SetDrawColor(teamColor.r, teamColor.g, teamColor.b, playerAlpha)
             surface.DrawTexturedRect(iconX, iconY, iconSize, iconSize)
         end
     end
 
-    DrawTeamIcons(ownPlayers, startX, team.GetColor(ownTeam) or color_white)
-    DrawTeamIcons(enemyPlayers, startX + ownWidth + teamGap, team.GetColor(enemyTeam) or color_white)
+    DrawTeamIcons(ownPlayers, ownStartX, team.GetColor(ownTeam) or color_white, -1)
+    DrawTeamIcons(enemyPlayers, enemyStartX, team.GetColor(enemyTeam) or color_white, 1)
     surface.SetDrawColor(color_white)
     surface.SetMaterial(radarCircleMaterial)
 end
