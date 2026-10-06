@@ -307,19 +307,11 @@ hook.Add("HUDPaint", "JF_teammate_names", function()
     local nameColor = team.GetColor(plyTeam) or color_white
 
     for _, otherPly in player.Iterator() do
-        if not IsValid(otherPly) or otherPly == ply or not otherPly:Alive() or otherPly:Team() ~= plyTeam then
+        if not IsValid(otherPly) or otherPly == ply or not otherPly:Alive() or otherPly:Team() ~= plyTeam or otherPly:GetNWBool("downed") then
             continue
         end
-        if otherPly:GetNWBool("downed") then continue end
 
-        local target = otherPly
-        if otherPly:GetNWBool("downed") then
-            target = otherPly:GetNWEntity("downed_ragdoll")
-        end
-
-        if not IsValid(target) then continue end
-
-        local position = target:GetPos() + Vector(0, 0, target:OBBMaxs().z + 6)
+        local position = otherPly:GetPos() + Vector(0, 0, otherPly:OBBMaxs().z + 6)
         local screenPosition = position:ToScreen()
 
         if not screenPosition.visible then continue end

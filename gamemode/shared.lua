@@ -3,22 +3,12 @@ GM.Author = "thickskinjacket"
 
 DeriveGamemode("sandbox")
 
+include("sh_revive.lua")
+
 GM.BleedOutTime = 20
 GM.ReviveTime = 5
 GM.BleedOutSpeedupPerDown = 0.1
 GM.BleedOutSpeedupLimit = 0.5
-
-function GM:GetBleedOutTime(ply)
-    local downCount = IsValid(ply) and ply:GetNWInt("jf_down_count", 0) or 0
-    local speedup = math.min(
-        downCount * self.BleedOutSpeedupPerDown,
-        self.BleedOutSpeedupLimit
-    )
-
-    return self.BleedOutTime * (1 - speedup)
-end
-
-include("sh_revive.lua")
 
 ROUND_WAITING = 0
 ROUND_STARTING = 1
@@ -278,6 +268,16 @@ function GM:CreateTeams()
 
 	team.SetSpawnPoint(TEAM_FIREFLIES, "info_player_deathmatch")
    	team.SetSpawnPoint(TEAM_HUNTERS, "info_player_deathmatch")
+end
+
+function GM:GetBleedOutTime(ply)
+    local downCount = IsValid(ply) and ply:GetNWInt("jf_down_count", 0) or 0
+    local speedup = math.min(
+        downCount * self.BleedOutSpeedupPerDown,
+        self.BleedOutSpeedupLimit
+    )
+
+    return self.BleedOutTime * (1 - speedup)
 end
 
 function GM:Initialize()
