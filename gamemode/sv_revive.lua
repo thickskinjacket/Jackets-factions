@@ -292,15 +292,9 @@ hook.Add("PlayerSpawn", "HSR_ps", function(ply, _)
 
 	if not IsValid(downed_ragdoll) then return end
 
-	ply:UnSpectate()
 	downed_ragdoll:SetNWEntity("owner", nil)
 	downed_ragdoll:Remove()
 	ply:SetNWEntity("downed_ragdoll", nil)
-
-	ply:DrawViewModel(true)
-	ply:SetNoDraw(false)
-	ply:SetNoTarget(false)
-	ply:SetNotSolid(false)
 end)
 
 hook.Add( "PlayerCanPickupWeapon", "HSR_no_pickup_while_downed", function(ply, _)

@@ -57,6 +57,13 @@ end
 
 function GM:PlayerSpawn(ply)
     ply.JFRespawnAvailableAt = nil
+    
+    ply:UnSpectate()
+    ply:DrawViewModel(true)
+	ply:SetNoDraw(false)
+	ply:SetNoTarget(false)
+	ply:SetNotSolid(false)
+
     self.BaseClass.PlayerSpawn(self, ply)
     ply:SetWalkSpeed(175)
     ply:SetRunSpeed(300)
