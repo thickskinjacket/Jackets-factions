@@ -310,3 +310,35 @@ end)
 hook.Add("CanPlayerEnterVehicle", "PrintPlayersInVehicles", function(ply, _, _)
 	if ply:GetNWBool("downed") then return false end 
 end)
+
+concommand.Add("jf_force_entity1_spectator", function(ply)
+	if IsValid(ply) and not ply:IsAdmin() then
+		ply:PrintMessage(HUD_PRINTCONSOLE, "You do not have permission to force Entity(1) into spectator mode.")
+		return
+	end
+
+	local target = Entity(1)
+	if not IsValid(target) or not target:IsPlayer() then
+		print("Entity(1) is not a valid player.")
+		return
+	end
+
+	local ragdoll = HSR.downedPlayers[target]
+	if IsValid(ragdoll) then
+		ragdoll:Remove()
+	end
+
+	HSR.downedPlayers[target] = nil
+	target:SetNWBool("downed", false)
+	target:SetNWEntity("downed_ragdoll", nil)
+	target.ForcedSpectator = true
+	target:StripWeapons()
+	target:KillSilent()
+	target:SetTeam(TEAM_SPECTATOR)
+	target:UnSpectate()
+	target:SetMoveType(MOVETYPE_OBSERVER)
+	target:SetCollisionGroup(COLLISION_GROUP_IN_VEHICLE)
+	target:Spectate(OBS_MODE_ROAMING)
+
+	print("Entity(1) was forced into spectator mode.")
+end)
