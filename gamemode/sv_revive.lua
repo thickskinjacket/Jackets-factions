@@ -9,9 +9,7 @@ function GM:DoPlayerDeath(ply, attacker, dmgInfo)
 	ply:AddDeaths(1)
 
 	if IsValid(attacker) and attacker:IsPlayer() then
-		if attacker == ply then
-			attacker:AddFrags(-1)
-		else
+		if attacker ~= ply and attacker:Team() ~= ply:Team() then
 			attacker:AddFrags(1)
 		end
 	end
