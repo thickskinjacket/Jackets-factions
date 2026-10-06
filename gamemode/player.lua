@@ -45,7 +45,7 @@ local function GetSpectateTarget(ply, currentTarget, indexOffset)
 end
 
 function GM:PlayerDeathThink(ply)
-    if ply:GetObserverMode() ~= OBS_MODE_NONE then
+    if ply:Team() ~= TEAM_SPECTATOR and ply:GetObserverMode() ~= OBS_MODE_NONE then
         local target = ply:GetObserverTarget()
         local targetPlayer = GetSpectatePlayer(target)
 
