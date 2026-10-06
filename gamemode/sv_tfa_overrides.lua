@@ -34,7 +34,7 @@ local TFA_OVERRIDES = {
     ["tlou_fullautorifle"] = {
         Primary = {
             RPM = 260,
-            ClipSize = 8
+            ClipSize = 12
         }
     },
     ["tlou_tacshotgun"] = {
