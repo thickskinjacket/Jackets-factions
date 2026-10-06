@@ -57,7 +57,7 @@ end
 
 function GM:PlayerSpawn(ply)
     ply.JFRespawnAvailableAt = nil
-    
+
     ply:UnSpectate()
     ply:DrawViewModel(true)
 	ply:SetNoDraw(false)
@@ -80,6 +80,12 @@ function GM:PlayerSpawn(ply)
             self:GiveRoundLoadout(ply)
         end
     end)
+end
+
+function GM:Spectate(ply)
+    ply:Spectate(OBS_MODE_CHASE)
+    ply:SetMoveType(MOVETYPE_OBSERVER)
+    ply:SetCollisionGroup(COLLISION_GROUP_IN_VEHICLE)
 end
 
 function GM:GiveRoundLoadout(ply)
