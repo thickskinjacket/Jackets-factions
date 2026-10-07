@@ -2,8 +2,21 @@ local meta = FindMetaTable("Player")
 
 local maxPerItem = 3
 
+local itemModels = {
+    blade = "models/props_junk/garbage_glassbottle003a_chunk02.mdl",
+    alcohol = "models/props_junk/PopCan01a.mdl",
+    rag = "models/weapons/csgo/atts/silencer_clothwrapped.mdl",
+    explosive = "models/props_junk/garbage_bag001a.mdl",
+    sugar = "models/props_junk/metal_paintcan001b.mdl",
+    binding = "models/weapons/w_package.mdl"
+}
+
 local function GetInventoryKey(item)
     return "inventory_" .. item
+end
+
+function meta:GetItemModel(item)
+    return itemModels[string.lower(item)]
 end
 
 function meta:InitializeInventory()
