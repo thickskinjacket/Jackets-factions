@@ -424,7 +424,7 @@ hook.Add("HUDPaint", "jacketsfactions_radar", function()
     local radarX = radarConfig.margin.x * scale + radarRadius
     local radarY =  radarConfig.margin.y * scale + radarRadius
 
-    if not ply:Alive() then
+    if not isSpectator and not ply:Alive() then
         if not isSpectating then return end
 
         DrawSpectatorUI(ply, radarX, radarY, scale)
