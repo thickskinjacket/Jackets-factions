@@ -7,10 +7,20 @@ function ENT:Initialize()
     self:PhysicsInit(SOLID_VPHYSICS)
     self:SetMoveType(MOVETYPE_VPHYSICS)
     self:SetSolid(SOLID_VPHYSICS)
+    self:SetCollisionGroup(COLLISION_GROUP_WORLD)
 
     local physicsObject = self:GetPhysicsObject()
     if IsValid(physicsObject) then
         physicsObject:Wake()
+
+        timer.Simple(1, function()
+            if not IsValid(self) then return end
+
+            local physicsObject = self:GetPhysicsObject()
+            if IsValid(physicsObject) then
+                physicsObject:EnableMotion(false)
+            end
+        end)
     end
 end
 
@@ -39,17 +49,40 @@ function ENT:Use(activator)
             local angle = math.Rand(0, math.pi * 2)
             local distance = math.Rand(25, 40)
             itemEntity:SetModel(model)
-            itemEntity:SetPos(self:GetPos() + Vector(math.cos(angle) * distance, math.sin(angle) * distance, 20))
+
+            local itemPosition = self:GetPos() + Vector(math.cos(angle) * distance, math.sin(angle) * distance, 100)
+            local trace = util.TraceLine({
+                start = itemPosition,
+                endpos = itemPosition - Vector(0, 0, 200),
+                filter = {self, itemEntity}
+            })
+
             itemEntity:Spawn()
             itemEntity:Activate()
 
-            itemEntity.ItemName = item
-            function itemEntity:Use(player)
-                if not IsValid(player) or not player:IsPlayer() then return end
-                if not player:AddItem(self.ItemName, 1) then return end
-
-                self:Remove()
+            local minimums = itemEntity:OBBMins()
+            if trace.Hit then
+                itemPosition.z = trace.HitPos.z - minimums.z
             end
+
+            itemEntity:SetPos(itemPosition)
+            itemEntity:SetCollisionGroup(COLLISION_GROUP_WORLD)
+            itemEntity:SetUseType(SIMPLE_USE)
+
+            local physicsObject = itemEntity:GetPhysicsObject()
+            if IsValid(physicsObject) then
+                physicsObject:EnableMotion(false)
+            end
+
+            itemEntity.ItemName = item
         end
     end
 end
+
+hook.Add("PlayerUse", "LootBoxItemPickup", function(player, entity)
+    if not entity.ItemName then return end
+    if not player:AddItem(entity.ItemName, 1) then return false end
+
+    entity:Remove()
+    return false
+end)
