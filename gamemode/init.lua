@@ -347,6 +347,7 @@ function PrepareRound()
     local players = {}
     for _, ply in player.Iterator() do
         if IsValid(ply) and ply:ShouldSpawn() then
+            ply:ResetInventory()
             ply:SetParts(0)
             table.insert(players, ply)
         end

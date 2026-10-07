@@ -30,6 +30,14 @@ function meta:InitializeInventory()
     }
 end
 
+function meta:ResetInventory()
+    self:InitializeInventory()
+
+    for item in pairs(self.inventory) do
+        self:SetNWInt(GetInventoryKey(item), 0)
+    end
+end
+
 function meta:SetItemCount(item, amount)
     item = string.lower(item)
     if not amount then return false end
