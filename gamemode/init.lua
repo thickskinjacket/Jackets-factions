@@ -343,6 +343,12 @@ function PrepareRound()
     timer.Remove("jf_respawn_wave")
 
     print("Preparing round...")
+    for _, lootBox in ipairs(ents.FindByClass("loot_box")) do
+        if IsValid(lootBox) then
+            lootBox:ResetLootBox()
+        end
+    end
+
     local roundTime = GetConVar("jf_round_time"):GetInt()
     SetRoundEnd(CurTime() + roundTime)
     

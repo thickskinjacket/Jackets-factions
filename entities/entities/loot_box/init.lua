@@ -5,7 +5,7 @@ local LOOTBOX_RESET_DELAY = 150
 
 function ENT:Initialize()
     self:SetModel("models/hello neighbor/alpha prop/toolbox.mdl")
-    self:SetNWBool("jf_lootbox_open", false)
+    self:ResetLootBox()
 
     self:PhysicsInit(SOLID_VPHYSICS)
     self:SetMoveType(MOVETYPE_VPHYSICS)
@@ -27,6 +27,12 @@ function ENT:Initialize()
     end
 end
 
+function ENT:ResetLootBox()
+    self:SetBodygroup(1, 0)
+    self.ItemsReleased = false
+    self:SetNWBool("jf_lootbox_open", false)
+end
+
 function ENT:Use(activator)
     if not IsValid(activator) or not activator:IsPlayer() then return end
     if self.ItemsReleased then return end
@@ -38,9 +44,7 @@ function ENT:Use(activator)
     timer.Simple(LOOTBOX_RESET_DELAY, function()
         if not IsValid(self) then return end
 
-        self:SetBodygroup(1, 0)
-        self.ItemsReleased = false
-        self:SetNWBool("jf_lootbox_open", false)
+        self:ResetLootBox()
     end)
 
     local itemPool = {
