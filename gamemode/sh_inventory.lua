@@ -84,3 +84,19 @@ end
 hook.Add("PlayerInitialSpawn", "InitializePlayerInventory", function(player)
     player:InitializeInventory()
 end)
+
+if SERVER then
+    concommand.Add("inventory", function(player)
+        if not IsValid(player) then return end
+
+        local inventory = player:GetInventory()
+        local items = {}
+
+        for item, amount in pairs(inventory) do
+            items[#items + 1] = item .. ": " .. amount
+        end
+
+        table.sort(items)
+        player:ChatPrint("Inventory: " .. table.concat(items, ", "))
+    end)
+end
