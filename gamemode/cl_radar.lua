@@ -134,6 +134,112 @@ local function DrawRadarPlayerBlip(x, y, scale)
     surface.DrawTexturedRect(x - (iconWidth / 2), y - (iconHeight / 2), iconWidth, iconHeight)
 end
 
+local function DrawSpectatorUI(ply, radarX, radarY, scale)
+    local rectangleWidth = 600 * scale
+    local rectangleHeight = 250 * scale
+    local rectangleX = radarX - radarConfig.radius
+    local rectangleY = radarY / 2 - (24 * scale)
+
+    surface.SetDrawColor(0, 0, 0, 128)
+    surface.DrawRect(rectangleX, rectangleY, rectangleWidth, rectangleHeight)
+
+    local textX = rectangleX + rectangleWidth / 2
+    draw.TextShadow({
+        text = "Spectating",
+        font = "TLOU_Font_Ammo_Big",
+        pos = {textX, rectangleY + (32 * scale)},
+        color = color_white,
+        xalign = TEXT_ALIGN_CENTER,
+        yalign = TEXT_ALIGN_CENTER
+    }, 1, 200)
+
+    local target = ply:GetObserverTarget()
+    if IsValid(target) and not target:IsPlayer() then
+        target = target:GetNWEntity("owner")
+    end
+
+    if IsValid(target) and target:IsPlayer() then
+        draw.TextShadow({
+            text = target:Nick(),
+            font = "jf_radar_lives",
+            pos = {textX, rectangleY + (64 * scale)},
+            color = team.GetColor(ply:Team()) or color_white,
+            xalign = TEXT_ALIGN_CENTER,
+            yalign = TEXT_ALIGN_CENTER
+        }, 1, 200)
+    end
+
+    local separatorY = rectangleY + (88 * scale)
+    surface.SetDrawColor(255, 255, 255, 160)
+    surface.DrawRect(
+        rectangleX + (32 * scale),
+        separatorY,
+        rectangleWidth - (64 * scale),
+        math.max(1, scale)
+    )
+
+    local controlsY = rectangleY + (108 * scale)
+    local controlGap = 24 * scale
+    surface.SetFont("textFont")
+    local nextTextWidth = surface.GetTextSize("LMB Next Player")
+    local previousTextWidth = surface.GetTextSize("RMB Previous Player")
+    local controlsWidth = nextTextWidth + controlGap + previousTextWidth
+    local controlsX = textX - controlsWidth / 2
+
+    draw.TextShadow({
+        text = "LMB Next Player",
+        font = "textFont",
+        pos = {controlsX, controlsY},
+        color = color_white,
+        xalign = TEXT_ALIGN_LEFT,
+        yalign = TEXT_ALIGN_CENTER
+    }, 1, 200)
+    draw.TextShadow({
+        text = "RMB Previous Player",
+        font = "textFont",
+        pos = {controlsX + nextTextWidth + controlGap, controlsY},
+        color = color_white,
+        xalign = TEXT_ALIGN_LEFT,
+        yalign = TEXT_ALIGN_CENTER
+    }, 1, 200)
+
+    local nextWaveIn = math.max(0, GetGlobalFloat("jf_next_respawn_wave", 0) - CurTime())
+    local nextWaveSeconds = math.ceil(nextWaveIn)
+    draw.TextShadow({
+        text = "Next spawn wave in " .. nextWaveSeconds .. "...",
+        font = "textFont",
+        pos = {textX, rectangleY + (178 * scale)},
+        color = color_white,
+        xalign = TEXT_ALIGN_CENTER,
+        yalign = TEXT_ALIGN_CENTER
+    }, 1, 200)
+
+    local bottomControlGap = 16 * scale
+    surface.SetFont("textFont")
+    local storeTextWidth = surface.GetTextSize("[X] Store")
+    local loadoutTextWidth = surface.GetTextSize("[X] Loadout")
+    local bottomControlsWidth = storeTextWidth + bottomControlGap + loadoutTextWidth
+    local bottomControlsX = textX - bottomControlsWidth / 2
+    local bottomControlsY = rectangleY + (216 * scale)
+
+    draw.TextShadow({
+        text = "[X] Store",
+        font = "textFont",
+        pos = {bottomControlsX, bottomControlsY},
+        color = color_white,
+        xalign = TEXT_ALIGN_LEFT,
+        yalign = TEXT_ALIGN_CENTER
+    }, 1, 200)
+    draw.TextShadow({
+        text = "[X] Loadout",
+        font = "textFont",
+        pos = {bottomControlsX + storeTextWidth + bottomControlGap, bottomControlsY},
+        color = color_white,
+        xalign = TEXT_ALIGN_LEFT,
+        yalign = TEXT_ALIGN_CENTER
+    }, 1, 200)
+end
+
 local function DrawRadarLootBoxBlip(x, y, scale)
     local iconSize = 4 * 2.5 * scale
 
@@ -313,12 +419,22 @@ hook.Add("HUDPaint", "jacketsfactions_radar", function()
     if not IsValid(ply) then return end
 
     local isSpectator = ply:Team() == TEAM_SPECTATOR
-    if not isSpectator and not ply:Alive() then return end
-
-    -- Draw radar background
+    local isSpectating = ply:GetObserverMode() ~= OBS_MODE_NONE
     local radarRadius = radarConfig.radius * scale
     local radarX = radarConfig.margin.x * scale + radarRadius
     local radarY =  radarConfig.margin.y * scale + radarRadius
+
+    if not ply:Alive() then
+        if not isSpectating then return end
+
+        DrawSpectatorUI(ply, radarX, radarY, scale)
+        DrawRadarRoundTime(radarX, radarY, radarRadius, scale)
+        DrawRadarTeamLives(ply, radarX, radarY, radarRadius, scale)
+        DrawRadarTeamPlayers(ply, radarX, radarY, radarRadius, scale)
+        return
+    end
+
+    -- Draw radar background
     local radarOrigin = isSpectator and EyePos() or GetRadarPlayerPosition(ply)
 
     surface.SetDrawColor(0, 0, 0, 128)

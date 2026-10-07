@@ -49,7 +49,8 @@ function GM:PlayerDeathThink(ply)
         local target = ply:GetObserverTarget()
         local targetPlayer = GetSpectatePlayer(target)
 
-        if IsValid(targetPlayer) and targetPlayer:Team() == ply:Team()
+        if not (ply:KeyPressed(IN_ATTACK) or ply:KeyPressed(IN_ATTACK2))
+            and IsValid(targetPlayer) and targetPlayer:Team() == ply:Team()
             and targetPlayer:GetNWBool("downed") then
             local spectateEntity = GetSpectateEntity(targetPlayer)
             if spectateEntity ~= target then

@@ -306,6 +306,9 @@ local function SpawnRespawnWave()
         local plyTeam = ply:Team()
         SetGlobalInt("jf_teamlives_" .. plyTeam, GAMEMODE.TeamLives[plyTeam])
     end
+
+    local respawnTime = math.max(GetConVar("jf_respawn_time"):GetFloat(), 1)
+    SetGlobalFloat("jf_next_respawn_wave", CurTime() + respawnTime)
 end
 
 function StartWinCheck()
@@ -377,6 +380,7 @@ function StartRound()
     SetRoundEnd(CurTime() + roundTime)
 
     local respawnTime = math.max(GetConVar("jf_respawn_time"):GetFloat(), 1)
+    SetGlobalFloat("jf_next_respawn_wave", CurTime() + respawnTime)
     timer.Create("jf_respawn_wave", respawnTime, 0, SpawnRespawnWave)
 
     timer.Create("jf_round_timer", roundTime, 1, function()
@@ -387,6 +391,7 @@ end
 function EndRound()
     SetRoundState(ROUND_OVER)
     timer.Remove("jf_respawn_wave")
+    SetGlobalFloat("jf_next_respawn_wave", 0)
 
     print("Round over.")
 
