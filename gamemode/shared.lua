@@ -4,6 +4,7 @@ GM.Author = "thickskinjacket"
 DeriveGamemode("sandbox")
 
 include("sh_revive.lua")
+include("sh_inventory.lua")
 
 GM.BleedOutTime = 20
 GM.ReviveTime = 5

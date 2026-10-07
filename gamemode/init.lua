@@ -13,6 +13,7 @@ AddCSLuaFile("cl_hud.lua")
 AddCSLuaFile("cl_revive.lua")
 AddCSLuaFile("cl_fonts.lua")
 AddCSLuaFile("sh_revive.lua")
+AddCSLuaFile("sh_inventory.lua")
 AddCSLuaFile("cl_radar.lua")
 AddCSLuaFile("cl_backpack.lua")
 
