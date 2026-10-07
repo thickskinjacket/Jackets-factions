@@ -1,8 +1,11 @@
 AddCSLuaFile("shared.lua")
 include("shared.lua")
 
+local LOOTBOX_RESET_DELAY = 150
+
 function ENT:Initialize()
     self:SetModel("models/hello neighbor/alpha prop/toolbox.mdl")
+    self:SetNWBool("jf_lootbox_open", false)
 
     self:PhysicsInit(SOLID_VPHYSICS)
     self:SetMoveType(MOVETYPE_VPHYSICS)
@@ -30,6 +33,15 @@ function ENT:Use(activator)
 
     self:SetBodygroup(1, 1)
     self.ItemsReleased = true
+    self:SetNWBool("jf_lootbox_open", true)
+
+    timer.Simple(LOOTBOX_RESET_DELAY, function()
+        if not IsValid(self) then return end
+
+        self:SetBodygroup(1, 0)
+        self.ItemsReleased = false
+        self:SetNWBool("jf_lootbox_open", false)
+    end)
 
     local itemPool = {
         "blade",

@@ -29,6 +29,7 @@ resource.AddFile("materials/hud/small-health.png")
 resource.AddFile("materials/hud/up-arrow2.png")
 resource.AddFile("materials/hud/man.png")
 resource.AddFile("materials/hud/mark.png")
+resource.AddFile("materials/hud/lootbox2.png")
 
 
 CreateConVar("jf_round_preparation_time", "2", {FCVAR_ARCHIVE, FCVAR_NOTIFY})

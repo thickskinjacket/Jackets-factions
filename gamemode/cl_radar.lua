@@ -14,6 +14,7 @@ local radarCircleMaterial = Material("vgui/white")
 local radarHealthIcon = Material("hud/small-health.png")
 local radarPlayerIcon = Material("hud/up-arrow2.png")
 local radarManIcon = Material("hud/man2.png")
+local radarLootBoxIcon = Material("hud/lootbox2.png")
 
 local radarEnemyMarkers = {}
 local radarEnemyTrackDuration = 2
@@ -125,12 +126,20 @@ local function DrawRadarBlip(x, y, color, scale, isDowned, isPlayerIcon, facingA
 end
 
 local function DrawRadarPlayerBlip(x, y, scale)
-    local iconWidth = radarConfig.blipRadius * 2.5 * scale
-    local iconHeight = radarConfig.blipRadius * 3.5 * scale
+    local iconWidth = radarConfig.blipRadius * 2.2 * scale
+    local iconHeight = radarConfig.blipRadius * 3.2 * scale
 
     surface.SetDrawColor(Color(225, 255, 255))
     surface.SetMaterial(radarPlayerIcon)
     surface.DrawTexturedRect(x - (iconWidth / 2), y - (iconHeight / 2), iconWidth, iconHeight)
+end
+
+local function DrawRadarLootBoxBlip(x, y, scale)
+    local iconSize = 4 * 2.5 * scale
+
+    surface.SetDrawColor(color_white)
+    surface.SetMaterial(radarLootBoxIcon)
+    surface.DrawTexturedRect(x - (iconSize / 2), y - (iconSize / 2), iconSize, iconSize)
 end
 
 local function GetRadarPlayerPosition(playerEntity)
@@ -443,5 +452,22 @@ hook.Add("HUDPaint", "jacketsfactions_radar", function()
             true,
             facingAngle
         )
+    end
+
+    for _, lootBox in ipairs(ents.FindByClass("loot_box")) do
+        if not IsValid(lootBox) or lootBox:GetNWBool("jf_lootbox_open", false) then continue end
+
+        local blipX, blipY = GetRadarBlipPosition(
+            lootBox:GetPos(),
+            radarOrigin,
+            radarX,
+            radarY,
+            radarRadius,
+            scale,
+            sinYaw,
+            cosYaw
+        )
+
+        DrawRadarLootBoxBlip(blipX, blipY, scale)
     end
 end)
